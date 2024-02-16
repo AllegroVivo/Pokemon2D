@@ -24,3 +24,10 @@ MonoBehaviour:
   _spAtk: 65
   _spDef: 65
   _speed: 45
+  _learnableMoves:
+  - _moveBase: {fileID: 11400000, guid: 6b2c99eadb094634c9eaacc19438eae7, type: 2}
+    _level: 1
+  - _moveBase: {fileID: 11400000, guid: f9ec0c746fc68a04694beaccb1f7345a, type: 2}
+    _level: 4
+  - _moveBase: {fileID: 11400000, guid: ad4ac4b3913117542a3e4993f8065d2a, type: 2}
+    _level: 7

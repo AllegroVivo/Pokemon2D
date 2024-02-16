@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Pokemon", menuName = "Pokemon/New Pokemon")]
@@ -20,6 +21,8 @@ public class PokemonBase : ScriptableObject
     [SerializeField] private Int32 _spDef;
     [SerializeField] private Int32 _speed;
 
+    [SerializeField] private List<LearnableMove> _learnableMoves;
+
     public String Name => _name;
     public String Description => _description;
     
@@ -35,4 +38,6 @@ public class PokemonBase : ScriptableObject
     public Int32 SpAtk => _spAtk;
     public Int32 SpDef => _spDef;
     public Int32 Speed => _speed;
+
+    public List<LearnableMove> LearnableMoves => _learnableMoves;
 }
