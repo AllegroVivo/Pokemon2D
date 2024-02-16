@@ -9,6 +9,13 @@ public class PlayerController : MonoBehaviour
     private Boolean isMoving;
     private Vector2 _input;
 
+    private Animator _animator;
+
+    private void Awake()
+    {
+        _animator = GetComponent<Animator>();
+    }
+
     private void Update()
     {
         if (!isMoving)
@@ -21,6 +28,9 @@ public class PlayerController : MonoBehaviour
 
             if (_input != Vector2.zero)
             {
+                _animator.SetFloat("MoveX", _input.x);
+                _animator.SetFloat("MoveY", _input.y);
+                
                 Vector2 targetPos = transform.position;
                 targetPos.x += _input.x;
                 targetPos.y += _input.y;
@@ -28,6 +38,8 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(Move(targetPos));
             }
         }
+
+        _animator.SetBool("IsMoving", isMoving);
     }
 
     IEnumerator Move(Vector3 targetPos)
