@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public Single moveSpeed;
+    public LayerMask solidObjectsLayer;
     
     private Boolean isMoving;
     private Vector2 _input;
@@ -35,7 +36,8 @@ public class PlayerController : MonoBehaviour
                 targetPos.x += _input.x;
                 targetPos.y += _input.y;
 
-                StartCoroutine(Move(targetPos));
+                if (IsWalkable(targetPos))
+                    StartCoroutine(Move(targetPos));
             }
         }
 
@@ -55,4 +57,6 @@ public class PlayerController : MonoBehaviour
         transform.position = targetPos;
         isMoving = false;
     }
+
+    private Boolean IsWalkable(Vector3 targetPos) => Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) == null;
 }
