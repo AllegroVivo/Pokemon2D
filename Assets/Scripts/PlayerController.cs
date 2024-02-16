@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using URandom = UnityEngine.Random;
 
 public class PlayerController : MonoBehaviour
 {
     public Single moveSpeed;
     public LayerMask solidObjectsLayer;
+    public LayerMask longGrassLayer;
     
     private Boolean isMoving;
     private Vector2 _input;
@@ -44,6 +46,8 @@ public class PlayerController : MonoBehaviour
         _animator.SetBool("IsMoving", isMoving);
     }
 
+    private Boolean IsWalkable(Vector3 targetPos) => Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) == null;
+
     IEnumerator Move(Vector3 targetPos)
     {
         isMoving = true;
@@ -56,7 +60,18 @@ public class PlayerController : MonoBehaviour
 
         transform.position = targetPos;
         isMoving = false;
+
+        CheckForEncounters();
     }
 
-    private Boolean IsWalkable(Vector3 targetPos) => Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) == null;
+    private void CheckForEncounters()
+    {
+        if (Physics2D.OverlapCircle(transform.position, 0.2f, longGrassLayer) != null)
+        {
+            if (URandom.Range(1, 101) <= 10)
+            {
+                Debug.Log("Encountered a wild pokemon!");
+            }
+        }
+    }
 }
