@@ -128,13 +128,20 @@ public class BattleSystem : MonoBehaviour
         
         Move move = _playerUnit.Mon.Moves[_currentMove];
         yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} used {move.Name}.");
+        
+        _playerUnit.PlayAttackAnimation();
+        yield return new WaitForSeconds(1f);
 
+        _enemyUnit.PlayHitAnimation();
         DamageDetails damageDetails = _enemyUnit.Mon.TakeDamage(move, _playerUnit.Mon);
         yield return _enemyHUD.UpdateHP();
         yield return ShowDamageDetails(damageDetails);
 
         if (damageDetails.Fainted)
-            yield return _dialogBox.TypeDialog($"{_enemyUnit.Mon.Name} fained");
+        {
+            yield return _dialogBox.TypeDialog($"{_enemyUnit.Mon.Name} fainted");
+            _enemyUnit.PlayFaintAnimation();
+        }
         else
             StartCoroutine(EnemyMove());
     }
@@ -145,13 +152,20 @@ public class BattleSystem : MonoBehaviour
 
         Move move = _playerUnit.Mon.GetRandomMove();
         yield return _dialogBox.TypeDialog($"{_enemyUnit.Mon.Name} used {move.Name}.");
-
+        
+        _enemyUnit.PlayAttackAnimation();
+        yield return new WaitForSeconds(1f);
+        
+        _playerUnit.PlayHitAnimation();
         DamageDetails damageDetails = _playerUnit.Mon.TakeDamage(move, _enemyUnit.Mon);
         yield return _playerHUD.UpdateHP();
         yield return ShowDamageDetails(damageDetails);
         
         if (damageDetails.Fainted)
-            yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} fained");
+        {
+            yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} fainted");
+            _playerUnit.PlayFaintAnimation();
+        }
         else
             PlayerAction();
     }
