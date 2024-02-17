@@ -11,6 +11,7 @@ public class BattleSystem : MonoBehaviour
     [SerializeField] private BattleHUD _enemyHUD;
 
     [SerializeField] private BattleDialogBox _dialogBox;
+    [SerializeField] private PartyScreen _partyScreen;
 
     public event Action<Boolean> OnBattleOver;
 
@@ -40,16 +41,16 @@ public class BattleSystem : MonoBehaviour
 
     private void HandleActionSelection()
     {
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            if (_currentAction < 1)
-                _currentAction++;
-        }
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+            _currentAction++;
+        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            _currentAction--;
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
+            _currentAction += 2;
         else if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            if (_currentAction > 0)
-                _currentAction--;
-        }
+            _currentAction -= 2;
+
+        _currentAction = Mathf.Clamp(_currentAction, 0, 3);
 
         _dialogBox.UpdateActionSelection(_currentAction);
 
@@ -59,7 +60,13 @@ public class BattleSystem : MonoBehaviour
                 PlayerMove();
             else if (_currentAction == 1)
             {
-                
+                // Bag
+            }
+            else if (_currentAction == 2)
+                OpenPartyScreen();
+            else if (_currentAction == 3)
+            {
+                // Run
             }
         }
     }
@@ -67,25 +74,15 @@ public class BattleSystem : MonoBehaviour
     private void HandleMoveSelection()
     {
         if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            if (_currentMove < _playerUnit.Mon.Moves.Count - 1)
-                _currentMove++;
-        }
+            _currentMove++;
         else if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            if (_currentMove > 0)
-                _currentMove--;
-        }
+            _currentMove--;
         else if (Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            if (_currentMove < _playerUnit.Mon.Moves.Count - 1)
-                _currentMove += 2;
-        }
+            _currentMove += 2;
         else if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            if (_currentMove > 1)
-                _currentMove -= 2;
-        }
+            _currentMove -= 2;
+
+        _currentMove = Mathf.Clamp(_currentMove, 0, _playerUnit.Mon.Moves.Count - 1);
 
         _dialogBox.UpdateMoveSelection(_currentMove, _playerUnit.Mon.Moves[_currentMove]);
 
@@ -94,6 +91,12 @@ public class BattleSystem : MonoBehaviour
             _dialogBox.EnableMoveSelector(false);
             _dialogBox.EnableDialogText(true);
             StartCoroutine(PerformPlayerMove());
+        }
+        else if (Input.GetKeyDown(KeyCode.X))
+        {
+            _dialogBox.EnableMoveSelector(false);
+            _dialogBox.EnableDialogText(true);
+            PlayerAction();
         }
     }
 
@@ -104,7 +107,8 @@ public class BattleSystem : MonoBehaviour
         
         _playerHUD.SetData(_playerUnit.Mon);
         _enemyHUD.SetData(_enemyUnit.Mon);
-
+        
+        _partyScreen.Init();
         _dialogBox.SetMoveNames(_playerUnit.Mon.Moves);
         
         yield return _dialogBox.TypeDialog($"A wild {_enemyUnit.Mon.Name} appeared!");
@@ -115,7 +119,7 @@ public class BattleSystem : MonoBehaviour
     private void PlayerAction()
     {
         _state = BattleState.PlayerAction;
-        StartCoroutine(_dialogBox.TypeDialog("Choose an action."));
+        _dialogBox.SetDialog("Choose an action.");
         _dialogBox.EnableActionSelector(true);
         
     }
@@ -211,5 +215,11 @@ public class BattleSystem : MonoBehaviour
             yield return _dialogBox.TypeDialog("It's super effective!");
         else if (damageDetails.TypeEffectiveness < 1f)
             yield return _dialogBox.TypeDialog("It's not very effective...");
+    }
+
+    private void OpenPartyScreen()
+    {
+        _partyScreen.SetPartyData(_playerParty.PartyList);
+        _partyScreen.gameObject.SetActive(true);
     }
 }
