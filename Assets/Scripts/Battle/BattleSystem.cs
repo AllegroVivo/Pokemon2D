@@ -12,17 +12,19 @@ public class BattleSystem : MonoBehaviour
 
     [SerializeField] private BattleDialogBox _dialogBox;
 
+    public event Action<Boolean> OnBattleOver;
+
     private Int32 _currentAction;
     private Int32 _currentMove;
 
     private BattleState _state;
 
-    private void Start()
+    public void StartBattle()
     {
         StartCoroutine(SetupBattle());
     }
 
-    private void Update()
+    public void HandleUpdate()
     {
         if (_state == BattleState.PlayerAction)
             HandleActionSelection();
@@ -48,9 +50,7 @@ public class BattleSystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Z))
         {
             if (_currentAction == 0)
-            {
                 PlayerMove();
-            }
             else if (_currentAction == 1)
             {
                 
@@ -141,16 +141,21 @@ public class BattleSystem : MonoBehaviour
         {
             yield return _dialogBox.TypeDialog($"{_enemyUnit.Mon.Name} fainted");
             _enemyUnit.PlayFaintAnimation();
+
+            yield return new WaitForSeconds(2f);
+            OnBattleOver?.Invoke(true);
         }
         else
+        {
             StartCoroutine(EnemyMove());
+        }
     }
 
     private IEnumerator EnemyMove()
     {
         _state = BattleState.EnemyMove;
 
-        Move move = _playerUnit.Mon.GetRandomMove();
+        Move move = _enemyUnit.Mon.GetRandomMove();
         yield return _dialogBox.TypeDialog($"{_enemyUnit.Mon.Name} used {move.Name}.");
         
         _enemyUnit.PlayAttackAnimation();
@@ -165,9 +170,14 @@ public class BattleSystem : MonoBehaviour
         {
             yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} fainted");
             _playerUnit.PlayFaintAnimation();
+            
+            yield return new WaitForSeconds(2f);
+            OnBattleOver?.Invoke(false);
         }
         else
+        {
             PlayerAction();
+        }
     }
 
     private IEnumerator ShowDamageDetails(DamageDetails damageDetails)

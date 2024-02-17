@@ -8,6 +8,8 @@ public class PlayerController : MonoBehaviour
     public Single moveSpeed;
     public LayerMask solidObjectsLayer;
     public LayerMask longGrassLayer;
+
+    public event Action OnEncountered;
     
     private Boolean isMoving;
     private Vector2 _input;
@@ -19,7 +21,7 @@ public class PlayerController : MonoBehaviour
         _animator = GetComponent<Animator>();
     }
 
-    private void Update()
+    public void HandleUpdate()
     {
         if (!isMoving)
         {
@@ -70,7 +72,8 @@ public class PlayerController : MonoBehaviour
         {
             if (URandom.Range(1, 101) <= 10)
             {
-                Debug.Log("Encountered a wild pokemon!");
+                _animator.SetBool("IsMoving", false);
+                OnEncountered?.Invoke();
             }
         }
     }

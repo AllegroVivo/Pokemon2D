@@ -26,7 +26,8 @@ public class BattleUnit : MonoBehaviour
     {
         Mon = new Pokemon(_base, _level);
         _image.sprite = _isPlayerUnit ? Mon.BackSprite : Mon.FrontSprite;
-        
+
+        _image.color = _originalColor;
         PlayEnterAnimation();
     }
 
