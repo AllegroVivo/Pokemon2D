@@ -82,6 +82,13 @@ public class BattleSystem : MonoBehaviour
         }
 
         _dialogBox.UpdateMoveSelection(_currentMove, _playerUnit.Mon.Moves[_currentMove]);
+
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            _dialogBox.EnableMoveSelector(false);
+            _dialogBox.EnableDialogText(true);
+            StartCoroutine(PerformPlayerMove());
+        }
     }
 
     private IEnumerator SetupBattle()
@@ -113,5 +120,37 @@ public class BattleSystem : MonoBehaviour
         _dialogBox.EnableActionSelector(false);
         _dialogBox.EnableDialogText(false);
         _dialogBox.EnableMoveSelector(true);
+    }
+
+    private IEnumerator PerformPlayerMove()
+    {
+        _state = BattleState.Busy;
+        
+        Move move = _playerUnit.Mon.Moves[_currentMove];
+        yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} used {move.Name}.");
+
+        Boolean isFainted = _enemyUnit.Mon.TakeDamage(move, _playerUnit.Mon);
+        yield return _enemyHUD.UpdateHP();
+        
+        if (isFainted)
+            yield return _dialogBox.TypeDialog($"{_enemyUnit.Mon.Name} fained");
+        else
+            StartCoroutine(EnemyMove());
+    }
+
+    private IEnumerator EnemyMove()
+    {
+        _state = BattleState.EnemyMove;
+
+        Move move = _playerUnit.Mon.GetRandomMove();
+        yield return _dialogBox.TypeDialog($"{_enemyUnit.Mon.Name} used {move.Name}.");
+
+        Boolean isFainted = _playerUnit.Mon.TakeDamage(move, _enemyUnit.Mon);
+        yield return _playerHUD.UpdateHP();
+        
+        if (isFainted)
+            yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} fained");
+        else
+            PlayerAction();
     }
 }

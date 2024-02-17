@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using URandom = UnityEngine.Random;
 
 public class Pokemon
 {
@@ -50,4 +51,23 @@ public class Pokemon
                 break;
         }
     }
+
+    public Boolean TakeDamage(Move move, Pokemon attacker)
+    {
+        Single modifiers = URandom.Range(0.85f, 1f);
+        Single a = (2 * attacker.Level + 10) / 250f;
+        Single d = a * move.Power * ((Single)attacker.Attack / Defense) + 2;
+        Int32 damage = Mathf.FloorToInt(d * modifiers);
+
+        CurrentHP -= damage;
+        if (CurrentHP <= 0)
+        {
+            CurrentHP = 0;
+            return true;
+        }
+
+        return false;
+    }
+
+    public Move GetRandomMove() => Moves[URandom.Range(0, Moves.Count)];
 }
