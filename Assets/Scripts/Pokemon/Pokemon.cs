@@ -4,47 +4,47 @@ using UnityEngine;
 
 public class Pokemon
 {
-    private PokemonBase _base;
-    private Int32 _level;
+    public PokemonBase Base { get; private set; }
+    public Int32 Level { get; set; }
+
+    public String Name => Base.Name;
+    public String Description => Base.Description;
     
-    public String Name => _base.Name;
-    public String Description => _base.Description;
-    
-    public Sprite FrontSprite => _base.FrontSprite;
-    public Sprite BackSprite => _base.BackSprite;
+    public Sprite FrontSprite => Base.FrontSprite;
+    public Sprite BackSprite => Base.BackSprite;
 
-    public PokemonType Type1 => _base.Type1;
-    public PokemonType Type2 => _base.Type2;
+    public PokemonType Type1 => Base.Type1;
+    public PokemonType Type2 => Base.Type2;
 
-    public Int32 BaseHP => _base.MaxHP;
-    public Int32 BaseAttack => _base.Attack;
-    public Int32 BaseDefense => _base.Defense;
-    public Int32 BaseSpAtk => _base.SpAtk;
-    public Int32 BaseSpDef => _base.SpDef;
-    public Int32 BaseSpeed => _base.Speed;
+    public Int32 BaseHP => Base.MaxHP;
+    public Int32 BaseAttack => Base.Attack;
+    public Int32 BaseDefense => Base.Defense;
+    public Int32 BaseSpAtk => Base.SpAtk;
+    public Int32 BaseSpDef => Base.SpDef;
+    public Int32 BaseSpeed => Base.Speed;
 
-    public Int32 MaxHP => Mathf.FloorToInt(BaseHP * _level / 100f) + _level + 10;
+    public Int32 MaxHP => Mathf.FloorToInt(BaseHP * Level / 100f) + Level + 10;
     public Int32 CurrentHP { get; set; }
     
-    public Int32 Attack => Mathf.FloorToInt(BaseAttack * _level / 100f) + 5;
-    public Int32 Defense => Mathf.FloorToInt(BaseDefense * _level / 100f) + 5;
-    public Int32 SpAtk => Mathf.FloorToInt(BaseSpAtk * _level / 100f) + 5;
-    public Int32 SpDef => Mathf.FloorToInt(BaseSpDef * _level / 100f) + 5;
-    public Int32 Speed => Mathf.FloorToInt(BaseSpeed * _level / 100f) + 5;
+    public Int32 Attack => Mathf.FloorToInt(BaseAttack * Level / 100f) + 5;
+    public Int32 Defense => Mathf.FloorToInt(BaseDefense * Level / 100f) + 5;
+    public Int32 SpAtk => Mathf.FloorToInt(BaseSpAtk * Level / 100f) + 5;
+    public Int32 SpDef => Mathf.FloorToInt(BaseSpDef * Level / 100f) + 5;
+    public Int32 Speed => Mathf.FloorToInt(BaseSpeed * Level / 100f) + 5;
 
-    public List<LearnableMove> LearnableMoves => _base.LearnableMoves;
+    public List<LearnableMove> LearnableMoves => Base.LearnableMoves;
     public List<Move> Moves { get; set; }
 
     public Pokemon(PokemonBase pBase, Int32 pLevel)
     {
-        _base = pBase;
-        _level = pLevel;
-        CurrentHP = MaxHP
+        Base = pBase;
+        Level = pLevel;
+        CurrentHP = MaxHP;
 
         Moves = new List<Move>();
         foreach (LearnableMove move in LearnableMoves)
         {
-            if (move.Level <= _level)
+            if (move.Level <= Level)
                 Moves.Add(new Move(move.Base));
             if (Moves.Count >= 4)
                 break;
