@@ -64,10 +64,13 @@ public class Pokemon
             Critical = critical,
             Fainted = false
         };
+
+        Single attack = move.IsSpecial ? attacker.SpAtk : attacker.Attack;
+        Single defense = move.IsSpecial ? SpDef : Defense;
         
         Single modifiers = URandom.Range(0.85f, 1f) * typeEffectiveness * critical;
         Single a = (2 * attacker.Level + 10) / 250f;
-        Single d = a * move.Power * ((Single)attacker.Attack / Defense) + 2;
+        Single d = a * move.Power * (attack / defense) + 2;
         Int32 damage = Mathf.FloorToInt(d * modifiers);
 
         CurrentHP -= damage;

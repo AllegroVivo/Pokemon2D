@@ -127,6 +127,7 @@ public class BattleSystem : MonoBehaviour
         _state = BattleState.Busy;
         
         Move move = _playerUnit.Mon.Moves[_currentMove];
+        move.CurrentPP--;
         yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} used {move.Name}.");
         
         _playerUnit.PlayAttackAnimation();
@@ -156,6 +157,7 @@ public class BattleSystem : MonoBehaviour
         _state = BattleState.EnemyMove;
 
         Move move = _enemyUnit.Mon.GetRandomMove();
+        move.CurrentPP--;
         yield return _dialogBox.TypeDialog($"{_enemyUnit.Mon.Name} used {move.Name}.");
         
         _enemyUnit.PlayAttackAnimation();

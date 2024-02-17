@@ -13,6 +13,8 @@ public class Move
     public Int32 Power => Base.Power;
     public Int32 Accuracy => Base.Accuracy;
     public Int32 MaxPP => Base.PP;
+
+    public Boolean IsSpecial => Base.IsSpecial;
     
     public Int32 CurrentPP { get; set; }
 

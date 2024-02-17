@@ -19,4 +19,7 @@ public class MoveBase : ScriptableObject
     public Int32 Power => _power;
     public Int32 Accuracy => _accuracy;
     public Int32 PP => _pp;
+
+    public Boolean IsSpecial => _type is PokemonType.Fire or PokemonType.Water or PokemonType.Grass 
+                                         or PokemonType.Ice or PokemonType.Electric or PokemonType.Dragon;
 }
