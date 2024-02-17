@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using URandom = UnityEngine.Random;
 
+[Serializable]
 public class Pokemon
 {
-    public PokemonBase Base { get; private set; }
-    public Int32 Level { get; set; }
+    [SerializeField] private PokemonBase _base;
+    [SerializeField] private Int32 _level;
+
+    public PokemonBase Base => _base;
+    public Int32 Level => _level;
 
     public String Name => Base.Name;
     public String Description => Base.Description;
@@ -36,10 +40,8 @@ public class Pokemon
     public List<LearnableMove> LearnableMoves => Base.LearnableMoves;
     public List<Move> Moves { get; set; }
 
-    public Pokemon(PokemonBase pBase, Int32 pLevel)
+    public void Init()
     {
-        Base = pBase;
-        Level = pLevel;
         CurrentHP = MaxHP;
 
         Moves = new List<Move>();

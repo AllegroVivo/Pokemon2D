@@ -18,9 +18,15 @@ public class BattleSystem : MonoBehaviour
     private Int32 _currentMove;
 
     private BattleState _state;
+    
+    private PokemonParty _playerParty;
+    private Pokemon _wildMon;
 
-    public void StartBattle()
+    public void StartBattle(PokemonParty playerParty, Pokemon wildMon)
     {
+        _playerParty = playerParty;
+        _wildMon = wildMon;
+        
         StartCoroutine(SetupBattle());
     }
 
@@ -93,8 +99,8 @@ public class BattleSystem : MonoBehaviour
 
     private IEnumerator SetupBattle()
     {
-        _playerUnit.Setup();
-        _enemyUnit.Setup();
+        _playerUnit.Setup(_playerParty.GetHealthyPokemon());
+        _enemyUnit.Setup(_wildMon);
         
         _playerHUD.SetData(_playerUnit.Mon);
         _enemyHUD.SetData(_enemyUnit.Mon);
@@ -174,7 +180,22 @@ public class BattleSystem : MonoBehaviour
             _playerUnit.PlayFaintAnimation();
             
             yield return new WaitForSeconds(2f);
-            OnBattleOver?.Invoke(false);
+
+            Pokemon nextMon = _playerParty.GetHealthyPokemon();
+            if (nextMon != null)
+            {
+                _playerUnit.Setup(nextMon);
+                _playerHUD.SetData(nextMon);
+                _dialogBox.SetMoveNames(nextMon.Moves);
+                
+                yield return _dialogBox.TypeDialog($"Go {nextMon.Name}!");
+                
+                PlayerAction();
+            }
+            else
+            {
+                OnBattleOver?.Invoke(false);
+            }
         }
         else
         {

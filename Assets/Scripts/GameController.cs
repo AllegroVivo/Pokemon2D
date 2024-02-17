@@ -30,8 +30,11 @@ public class GameController : MonoBehaviour
         _state = GameState.Battle;
         _battleSystem.gameObject.SetActive(true);
         _worldCamera.gameObject.SetActive(false);
-        
-        _battleSystem.StartBattle();
+
+        PokemonParty playerParty = _playerController.GetComponent<PokemonParty>();
+        Pokemon wildMon = FindObjectOfType<MapArea>().GetComponent<MapArea>().GetRandomWildPokemon();
+
+        _battleSystem.StartBattle(playerParty, wildMon);
     }
 
     private void EndBattle(Boolean battleWon)
