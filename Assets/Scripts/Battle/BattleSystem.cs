@@ -129,10 +129,11 @@ public class BattleSystem : MonoBehaviour
         Move move = _playerUnit.Mon.Moves[_currentMove];
         yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} used {move.Name}.");
 
-        Boolean isFainted = _enemyUnit.Mon.TakeDamage(move, _playerUnit.Mon);
+        DamageDetails damageDetails = _enemyUnit.Mon.TakeDamage(move, _playerUnit.Mon);
         yield return _enemyHUD.UpdateHP();
-        
-        if (isFainted)
+        yield return ShowDamageDetails(damageDetails);
+
+        if (damageDetails.Fainted)
             yield return _dialogBox.TypeDialog($"{_enemyUnit.Mon.Name} fained");
         else
             StartCoroutine(EnemyMove());
@@ -145,12 +146,23 @@ public class BattleSystem : MonoBehaviour
         Move move = _playerUnit.Mon.GetRandomMove();
         yield return _dialogBox.TypeDialog($"{_enemyUnit.Mon.Name} used {move.Name}.");
 
-        Boolean isFainted = _playerUnit.Mon.TakeDamage(move, _enemyUnit.Mon);
+        DamageDetails damageDetails = _playerUnit.Mon.TakeDamage(move, _enemyUnit.Mon);
         yield return _playerHUD.UpdateHP();
+        yield return ShowDamageDetails(damageDetails);
         
-        if (isFainted)
+        if (damageDetails.Fainted)
             yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} fained");
         else
             PlayerAction();
+    }
+
+    private IEnumerator ShowDamageDetails(DamageDetails damageDetails)
+    {
+        if (damageDetails.Critical > 1f)
+            yield return _dialogBox.TypeDialog("A critical hit!");
+        if (damageDetails.TypeEffectiveness > 1f)
+            yield return _dialogBox.TypeDialog("It's super effective!");
+        else if (damageDetails.TypeEffectiveness < 1f)
+            yield return _dialogBox.TypeDialog("It's not very effective...");
     }
 }

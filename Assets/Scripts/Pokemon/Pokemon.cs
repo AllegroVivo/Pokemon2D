@@ -52,9 +52,20 @@ public class Pokemon
         }
     }
 
-    public Boolean TakeDamage(Move move, Pokemon attacker)
+    public DamageDetails TakeDamage(Move move, Pokemon attacker)
     {
-        Single modifiers = URandom.Range(0.85f, 1f);
+        Single critical = URandom.value * 100f <= 6.25 ? 2f : 1f;
+        Single typeEffectiveness = 
+            TypeChart.GetEffectiveness(move.Type, Type1) * TypeChart.GetEffectiveness(move.Type, Type2);
+
+        DamageDetails damageDetails = new()
+        {
+            TypeEffectiveness = typeEffectiveness,
+            Critical = critical,
+            Fainted = false
+        };
+        
+        Single modifiers = URandom.Range(0.85f, 1f) * typeEffectiveness * critical;
         Single a = (2 * attacker.Level + 10) / 250f;
         Single d = a * move.Power * ((Single)attacker.Attack / Defense) + 2;
         Int32 damage = Mathf.FloorToInt(d * modifiers);
@@ -63,10 +74,10 @@ public class Pokemon
         if (CurrentHP <= 0)
         {
             CurrentHP = 0;
-            return true;
+            damageDetails.Fainted = true;
         }
 
-        return false;
+        return damageDetails;
     }
 
     public Move GetRandomMove() => Moves[URandom.Range(0, Moves.Count)];

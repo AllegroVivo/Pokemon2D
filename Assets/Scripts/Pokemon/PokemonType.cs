@@ -17,5 +17,8 @@ public enum PokemonType
     Bug,
     Rock,
     Ghost,
-    Dragon
+    Dragon,
+    Dark,
+    Steel,
+    Fairy
 }
