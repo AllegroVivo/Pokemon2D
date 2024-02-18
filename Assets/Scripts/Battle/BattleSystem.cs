@@ -236,6 +236,12 @@ public class BattleSystem : MonoBehaviour
 
     private IEnumerator RunMove(BattleUnit sourceUnit, BattleUnit targetUnit, Move move)
     {
+        Boolean canRunMove = sourceUnit.Mon.OnBeforeMove();
+        yield return ShowStatusChanges(sourceUnit.Mon);
+        
+        if (!canRunMove)
+            yield break;
+        
         move.CurrentPP--;
         yield return _dialogBox.TypeDialog($"{sourceUnit.Mon.Name} used {move.Name}.");
         
@@ -278,7 +284,6 @@ public class BattleSystem : MonoBehaviour
             yield return new WaitForSeconds(2f);
 
             CheckForBattleOver(sourceUnit);
-            
         }
     }
 

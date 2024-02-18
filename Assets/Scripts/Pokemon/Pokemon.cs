@@ -47,6 +47,7 @@ public class Pokemon
     public List<Move> Moves { get; set; }
     
     public Condition Status { get; private set; }
+    public Int32 StatusTime { get; set; }
 
     public void Init()
     {
@@ -156,13 +157,27 @@ public class Pokemon
     public void SetStatus(ConditionID condition)
     {
         Status = ConditionsDB.Conditions[condition];
+        Status?.OnStart?.Invoke(this);
         StatusChanges.Enqueue($"{Name} {Status.StartMessage}");
+    }
+
+    public void CureStatus()
+    {
+        Status = null;
     }
 
     public void UpdateHP(Int32 damage)
     {
         CurrentHP = Mathf.Clamp(CurrentHP - damage, 0, MaxHP);
         HPChanged = true;
+    }
+
+    public Boolean OnBeforeMove()
+    {
+        if (Status?.OnBeforeMove != null)
+            return Status.OnBeforeMove(this);
+
+        return true;
     }
 
     public void OnAfterTurn()

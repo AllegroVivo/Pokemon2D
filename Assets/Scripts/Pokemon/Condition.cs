@@ -8,5 +8,7 @@ public class Condition
     public String Description { get; set; }
     public String StartMessage { get; set; }
 
+    public Action<Pokemon> OnStart { get; set; }
+    public Func<Pokemon, Boolean> OnBeforeMove { get; set; }
     public Action<Pokemon> OnAfterTurn { get; set; }
 }
