@@ -6,7 +6,11 @@ using UnityEngine.UI;
 public class BattleUnit : MonoBehaviour
 {
     [SerializeField] private Boolean _isPlayerUnit;
+    [SerializeField] private BattleHUD _hud;
 
+    public Boolean IsPlayer => _isPlayerUnit;
+    public BattleHUD HUD => _hud;
+    
     public Pokemon Mon { get; set; }
     
     private Image _image;
@@ -24,6 +28,8 @@ public class BattleUnit : MonoBehaviour
     {
         Mon = mon;
         _image.sprite = _isPlayerUnit ? Mon.BackSprite : Mon.FrontSprite;
+
+        _hud.SetData(Mon);
 
         _image.color = _originalColor;
         PlayEnterAnimation();

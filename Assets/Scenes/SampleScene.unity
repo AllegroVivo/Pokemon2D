@@ -302,9 +302,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerUnit: {fileID: 1780375881}
-  _playerHUD: {fileID: 586943201}
   _enemyUnit: {fileID: 211532477}
-  _enemyHUD: {fileID: 514994886}
   _dialogBox: {fileID: 1721211294}
   _partyScreen: {fileID: 1902748860}
 --- !u!4 &85578665
@@ -413,6 +411,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isPlayerUnit: 0
+  _hud: {fileID: 514994886}
 --- !u!1001 &236411161
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6626,7 +6625,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 276, y: -5.09}
+  m_AnchoredPosition: {x: 257, y: -5.095}
   m_SizeDelta: {x: 211.99, y: 118.05}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &859959603
@@ -9946,6 +9945,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isPlayerUnit: 1
+  _hud: {fileID: 586943201}
 --- !u!1 &1898550150
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,9 +3,10 @@
 public enum BattleState
 {
     Start,
-    PlayerAction,
-    PlayerMove,
-    EnemyMove,
+    ActionSelection,
+    MoveSelection,
     Busy,
-    PartyScreen
+    PartyScreen,
+    PerformingMove,
+    BattleOver,
 }
