@@ -10494,12 +10494,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _party:
+  - _base: {fileID: 11400000, guid: f467f25e7e943364d9738f6747c8b70f, type: 2}
+    _level: 10
   - _base: {fileID: 11400000, guid: 733e7246185fbb84bae8a8becb4a0e6f, type: 2}
     _level: 8
   - _base: {fileID: 11400000, guid: 49e9462c51470cf48b72c3397730fa49, type: 2}
     _level: 4
-  - _base: {fileID: 11400000, guid: 49e9462c51470cf48b72c3397730fa49, type: 2}
-    _level: 2
   - _base: {fileID: 11400000, guid: 733e7246185fbb84bae8a8becb4a0e6f, type: 2}
     _level: 5
   - _base: {fileID: 11400000, guid: 49e9462c51470cf48b72c3397730fa49, type: 2}

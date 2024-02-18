@@ -31,6 +31,7 @@ public class Pokemon
     public Int32 MaxHP { get; private set; }
     public Int32 CurrentHP { get; set; }
     public Boolean IsFainted => CurrentHP <= 0;
+    public Boolean HPChanged { get; set; }
 
     public Int32 Attack => GetStat(Stat.Attack);
     public Int32 Defense => GetStat(Stat.Defense);
@@ -44,6 +45,8 @@ public class Pokemon
 
     public List<LearnableMove> LearnableMoves => Base.LearnableMoves;
     public List<Move> Moves { get; set; }
+    
+    public Condition Status { get; private set; }
 
     public void Init()
     {
@@ -123,13 +126,8 @@ public class Pokemon
         Single a = (2 * attacker.Level + 10) / 250f;
         Single d = a * move.Power * (attack / defense) + 2;
         Int32 damage = Mathf.FloorToInt(d * modifiers);
-
-        CurrentHP -= damage;
-        if (CurrentHP <= 0)
-        {
-            CurrentHP = 0;
-            damageDetails.Fainted = true;
-        }
+        
+        UpdateHP(damage);
 
         return damageDetails;
     }
@@ -153,5 +151,22 @@ public class Pokemon
     public void OnBattleOver()
     {
         ResetStatBoosts();
+    }
+
+    public void SetStatus(ConditionID condition)
+    {
+        Status = ConditionsDB.Conditions[condition];
+        StatusChanges.Enqueue($"{Name} {Status.StartMessage}");
+    }
+
+    public void UpdateHP(Int32 damage)
+    {
+        CurrentHP = Mathf.Clamp(CurrentHP - damage, 0, MaxHP);
+        HPChanged = true;
+    }
+
+    public void OnAfterTurn()
+    {
+        Status?.OnAfterTurn?.Invoke(this);
     }
 }
