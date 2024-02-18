@@ -40,6 +40,7 @@ public class Pokemon
     
     public Dictionary<Stat, Int32> Stats { get; private set; }
     public Dictionary<Stat, Int32> StatBoosts { get; private set; }
+    public Queue<String> StatusChanges { get; private set; } = new();
 
     public List<LearnableMove> LearnableMoves => Base.LearnableMoves;
     public List<Move> Moves { get; set; }
@@ -58,6 +59,11 @@ public class Pokemon
         CalculateStats();
         CurrentHP = MaxHP;
 
+        ResetStatBoosts();
+    }
+
+    private void ResetStatBoosts()
+    {
         StatBoosts = new Dictionary<Stat, Int32>
         {
             { Stat.Attack, 0 },
@@ -138,8 +144,14 @@ public class Pokemon
             Int32 boost = statBoost.boost;
 
             StatBoosts[stat] = Mathf.Clamp(StatBoosts[stat] + boost, -6, 6);
+            StatusChanges.Enqueue($"{Name}'s {stat} " + (boost > 0 ? "rose!" : "fell!"));
             
             Debug.Log($"{stat} has been boosted to {StatBoosts[stat]}.");
         }
+    }
+
+    public void OnBattleOver()
+    {
+        ResetStatBoosts();
     }
 }

@@ -150,7 +150,7 @@ public class BattleSystem : MonoBehaviour
         
         yield return _dialogBox.TypeDialog($"A wild {_enemyUnit.Mon.Name} appeared!");
 
-        ActionSelection();
+        ChooseFirstTurn();
     }
 
     private void ActionSelection()
@@ -190,6 +190,7 @@ public class BattleSystem : MonoBehaviour
     private void BattleOver(Boolean battleWon)
     {
         _state = BattleState.BattleOver;
+        _playerParty.PartyList.ForEach(p => p.OnBattleOver());
         OnBattleOver?.Invoke(battleWon);
     } 
 
@@ -213,10 +214,12 @@ public class BattleSystem : MonoBehaviour
 
     private IEnumerator SwitchPokemon(Pokemon newMon)
     {
+        Boolean currentFainted = true;
         if (!_playerUnit.Mon.IsFainted)
         {
             yield return _dialogBox.TypeDialog($"Come back {_playerUnit.Mon.Name}!");
 
+            currentFainted = false;
             _playerUnit.PlayFaintAnimation();
             yield return new WaitForSeconds(2f);
         }
@@ -225,7 +228,10 @@ public class BattleSystem : MonoBehaviour
         _dialogBox.SetMoveNames(newMon.Moves);
         yield return _dialogBox.TypeDialog($"Go {newMon.Name}!");
 
-        StartCoroutine(EnemyMove());
+        if (currentFainted)
+            ChooseFirstTurn();
+        else
+            StartCoroutine(EnemyMove());
     }
 
     private IEnumerator RunMove(BattleUnit sourceUnit, BattleUnit targetUnit, Move move)
@@ -240,13 +246,7 @@ public class BattleSystem : MonoBehaviour
 
         if (move.IsStatus)
         {
-            if (move.Effects.StatBoosts != null)
-            {
-                if (move.Target == MoveTarget.Self)
-                    sourceUnit.Mon.ApplyBoosts(move.Effects.StatBoosts);
-                else
-                    targetUnit.Mon.ApplyBoosts(move.Effects.StatBoosts);
-            }
+            yield return RunMoveEffects(move, sourceUnit.Mon, targetUnit.Mon);
         }
         else
         {
@@ -280,5 +280,33 @@ public class BattleSystem : MonoBehaviour
         {
             BattleOver(true);
         }
+    }
+
+    private IEnumerator ShowStatusChanges(Pokemon mon)
+    {
+        while (mon.StatusChanges.Count > 0)
+            yield return _dialogBox.TypeDialog(mon.StatusChanges.Dequeue());
+    }
+
+    private void ChooseFirstTurn()
+    {
+        if (_playerUnit.Mon.Speed >= _enemyUnit.Mon.Speed)
+            ActionSelection();
+        else
+            StartCoroutine(EnemyMove());
+    }
+
+    private IEnumerator RunMoveEffects(Move move, Pokemon source, Pokemon target)
+    {
+        if (move.Effects.StatBoosts != null)
+        {
+            if (move.Target == MoveTarget.Self)
+                source.ApplyBoosts(move.Effects.StatBoosts);
+            else
+                target.ApplyBoosts(move.Effects.StatBoosts);
+        }
+
+        yield return ShowStatusChanges(source);
+        yield return ShowStatusChanges(target);
     }
 }
