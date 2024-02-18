@@ -6,5 +6,6 @@ public enum BattleState
     PlayerAction,
     PlayerMove,
     EnemyMove,
-    Busy
+    Busy,
+    PartyScreen
 }

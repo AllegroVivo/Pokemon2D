@@ -17,6 +17,7 @@ public class BattleSystem : MonoBehaviour
 
     private Int32 _currentAction;
     private Int32 _currentMove;
+    private Int32 _currentMember;
 
     private BattleState _state;
     
@@ -37,6 +38,8 @@ public class BattleSystem : MonoBehaviour
             HandleActionSelection();
         else if (_state == BattleState.PlayerMove)
             HandleMoveSelection();
+        else if (_state == BattleState.PartyScreen)
+            HandlePartySelection();
     }
 
     private void HandleActionSelection()
@@ -96,6 +99,46 @@ public class BattleSystem : MonoBehaviour
         {
             _dialogBox.EnableMoveSelector(false);
             _dialogBox.EnableDialogText(true);
+            PlayerAction();
+        }
+    }
+
+    private void HandlePartySelection()
+    {
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+            _currentMember++;
+        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            _currentMember--;
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
+            _currentMember += 2;
+        else if (Input.GetKeyDown(KeyCode.UpArrow))
+            _currentMember -= 2;
+
+        _currentMember = Mathf.Clamp(_currentMember, 0, _playerParty.PartyList.Count - 1);
+        _partyScreen.UpdateMemberSelection(_currentMember);
+
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            Pokemon selectedMember = _playerParty.PartyList[_currentMember];
+            if (selectedMember.IsFainted)
+            {
+                _partyScreen.SetMessageText($"{selectedMember.Name} is fainted and can't fight!");
+                return;
+            }
+
+            if (selectedMember == _playerUnit.Mon)
+            {
+                _partyScreen.SetMessageText($"{selectedMember.Name} is already in battle!");
+                return;
+            }
+
+            _partyScreen.gameObject.SetActive(false);
+            _state = BattleState.Busy;
+            StartCoroutine(SwitchPokemon(selectedMember));
+        }
+        else if (Input.GetKeyDown(KeyCode.X))
+        {
+            _partyScreen.gameObject.SetActive(false);
             PlayerAction();
         }
     }
@@ -185,21 +228,10 @@ public class BattleSystem : MonoBehaviour
             
             yield return new WaitForSeconds(2f);
 
-            Pokemon nextMon = _playerParty.GetHealthyPokemon();
-            if (nextMon != null)
-            {
-                _playerUnit.Setup(nextMon);
-                _playerHUD.SetData(nextMon);
-                _dialogBox.SetMoveNames(nextMon.Moves);
-                
-                yield return _dialogBox.TypeDialog($"Go {nextMon.Name}!");
-                
-                PlayerAction();
-            }
+            if (_playerParty.GetHealthyPokemon() != null)
+                OpenPartyScreen();
             else
-            {
                 OnBattleOver?.Invoke(false);
-            }
         }
         else
         {
@@ -211,6 +243,7 @@ public class BattleSystem : MonoBehaviour
     {
         if (damageDetails.Critical > 1f)
             yield return _dialogBox.TypeDialog("A critical hit!");
+        
         if (damageDetails.TypeEffectiveness > 1f)
             yield return _dialogBox.TypeDialog("It's super effective!");
         else if (damageDetails.TypeEffectiveness < 1f)
@@ -219,7 +252,27 @@ public class BattleSystem : MonoBehaviour
 
     private void OpenPartyScreen()
     {
+        _state = BattleState.PartyScreen;
         _partyScreen.SetPartyData(_playerParty.PartyList);
         _partyScreen.gameObject.SetActive(true);
+    }
+
+    private IEnumerator SwitchPokemon(Pokemon newMon)
+    {
+        if (!_playerUnit.Mon.IsFainted)
+        {
+            yield return _dialogBox.TypeDialog($"Come back {_playerUnit.Mon.Name}!");
+
+            _playerUnit.PlayFaintAnimation();
+            yield return new WaitForSeconds(2f);
+        }
+
+        _playerUnit.Setup(newMon);
+        _playerHUD.SetData(newMon);
+
+        _dialogBox.SetMoveNames(newMon.Moves);
+        yield return _dialogBox.TypeDialog($"Go {newMon.Name}!");
+
+        StartCoroutine(EnemyMove());
     }
 }

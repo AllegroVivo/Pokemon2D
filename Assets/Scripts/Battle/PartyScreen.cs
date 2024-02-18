@@ -9,6 +9,7 @@ public class PartyScreen : MonoBehaviour
     [SerializeField] private Text _messageText;
     
     private PartyMemberUI[] _memberSlots;
+    private List<Pokemon> _partyList;
 
     public void Init()
     {
@@ -17,6 +18,8 @@ public class PartyScreen : MonoBehaviour
 
     public void SetPartyData(List<Pokemon> monList)
     {
+        _partyList = monList;
+        
         for (Int32 i = 0; i < _memberSlots.Length; i++)
         {
             if (i < monList.Count)
@@ -27,4 +30,12 @@ public class PartyScreen : MonoBehaviour
 
         _messageText.text = "Choose a Pokemon...";
     }
+
+    public void UpdateMemberSelection(Int32 selectedMember)
+    {
+        for (Int32 i = 0; i < _partyList.Count; i++)
+            _memberSlots[i].SetSelected(i == selectedMember);
+    }
+
+    public void SetMessageText(String message) => _messageText.text = message;
 }

@@ -30,6 +30,7 @@ public class Pokemon
 
     public Int32 MaxHP => Mathf.FloorToInt(BaseHP * Level / 100f) + Level + 10;
     public Int32 CurrentHP { get; set; }
+    public Boolean IsFainted => CurrentHP <= 0;
     
     public Int32 Attack => Mathf.FloorToInt(BaseAttack * Level / 100f) + 5;
     public Int32 Defense => Mathf.FloorToInt(BaseDefense * Level / 100f) + 5;
