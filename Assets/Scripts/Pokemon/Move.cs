@@ -14,7 +14,12 @@ public class Move
     public Int32 Accuracy => Base.Accuracy;
     public Int32 MaxPP => Base.PP;
 
-    public Boolean IsSpecial => Base.IsSpecial;
+    public Boolean IsSpecial => Category == MoveCategory.Special;
+    public Boolean IsStatus => Category == MoveCategory.Status;
+    
+    public MoveCategory Category => Base.Category;
+    public MoveEffects Effects => Base.Effects;
+    public MoveTarget Target => Base.Target;
     
     public Int32 CurrentPP { get; set; }
 

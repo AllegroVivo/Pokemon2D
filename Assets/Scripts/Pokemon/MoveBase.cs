@@ -11,6 +11,9 @@ public class MoveBase : ScriptableObject
     [SerializeField] private Int32 _power;
     [SerializeField] private Int32 _accuracy;
     [SerializeField] private Int32 _pp;
+    [SerializeField] private MoveCategory _category;
+    [SerializeField] private MoveEffects _effects;
+    [SerializeField] private MoveTarget _target;
 
     public String Name => _name;
     public String Description => _description;
@@ -20,6 +23,8 @@ public class MoveBase : ScriptableObject
     public Int32 Accuracy => _accuracy;
     public Int32 PP => _pp;
 
-    public Boolean IsSpecial => _type is PokemonType.Fire or PokemonType.Water or PokemonType.Grass 
-                                         or PokemonType.Ice or PokemonType.Electric or PokemonType.Dragon;
+    public MoveCategory Category => _category;
+
+    public MoveEffects Effects => _effects;
+    public MoveTarget Target => _target;
 }

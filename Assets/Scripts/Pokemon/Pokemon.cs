@@ -28,23 +28,24 @@ public class Pokemon
     public Int32 BaseSpDef => Base.SpDef;
     public Int32 BaseSpeed => Base.Speed;
 
-    public Int32 MaxHP => Mathf.FloorToInt(BaseHP * Level / 100f) + Level + 10;
+    public Int32 MaxHP { get; private set; }
     public Int32 CurrentHP { get; set; }
     public Boolean IsFainted => CurrentHP <= 0;
+
+    public Int32 Attack => GetStat(Stat.Attack);
+    public Int32 Defense => GetStat(Stat.Defense);
+    public Int32 SpAtk => GetStat(Stat.SpAttack);
+    public Int32 SpDef => GetStat(Stat.SpDefense);
+    public Int32 Speed => GetStat(Stat.Speed);
     
-    public Int32 Attack => Mathf.FloorToInt(BaseAttack * Level / 100f) + 5;
-    public Int32 Defense => Mathf.FloorToInt(BaseDefense * Level / 100f) + 5;
-    public Int32 SpAtk => Mathf.FloorToInt(BaseSpAtk * Level / 100f) + 5;
-    public Int32 SpDef => Mathf.FloorToInt(BaseSpDef * Level / 100f) + 5;
-    public Int32 Speed => Mathf.FloorToInt(BaseSpeed * Level / 100f) + 5;
+    public Dictionary<Stat, Int32> Stats { get; private set; }
+    public Dictionary<Stat, Int32> StatBoosts { get; private set; }
 
     public List<LearnableMove> LearnableMoves => Base.LearnableMoves;
     public List<Move> Moves { get; set; }
 
     public void Init()
     {
-        CurrentHP = MaxHP;
-
         Moves = new List<Move>();
         foreach (LearnableMove move in LearnableMoves)
         {
@@ -53,6 +54,47 @@ public class Pokemon
             if (Moves.Count >= 4)
                 break;
         }
+        
+        CalculateStats();
+        CurrentHP = MaxHP;
+
+        StatBoosts = new Dictionary<Stat, Int32>
+        {
+            { Stat.Attack, 0 },
+            { Stat.Defense, 0 },
+            { Stat.SpAttack, 0 },
+            { Stat.SpDefense, 0 },
+            { Stat.Speed, 0 }
+        };
+    }
+
+    private void CalculateStats()
+    {
+        Stats = new Dictionary<Stat, Int32>
+        {
+            { Stat.Attack, Mathf.FloorToInt(BaseAttack * Level / 100f) + 5 },
+            { Stat.Defense, Mathf.FloorToInt(BaseDefense * Level / 100f) + 5 },
+            { Stat.SpAttack, Mathf.FloorToInt(BaseSpAtk * Level / 100f) + 5 },
+            { Stat.SpDefense, Mathf.FloorToInt(BaseSpDef * Level / 100f) + 5 },
+            { Stat.Speed, Mathf.FloorToInt(BaseSpeed * Level / 100f) + 5 }
+        };
+
+        MaxHP = Mathf.FloorToInt(BaseHP * Level / 100f) + Level + 10;
+    }
+
+    private Int32 GetStat(Stat stat)
+    {
+        Int32 statVal = Stats[stat];
+
+        Int32 boost = StatBoosts[stat];
+        Single[] boostValues = { 1f, 1.5f, 2f, 2.5f, 3f, 3.5f, 4f };
+
+        if (boost >= 0)
+            statVal = Mathf.FloorToInt(statVal * boostValues[boost]);
+        else
+            statVal = Mathf.FloorToInt(statVal / boostValues[-boost]);
+        
+        return statVal;
     }
 
     public DamageDetails TakeDamage(Move move, Pokemon attacker)
@@ -87,4 +129,17 @@ public class Pokemon
     }
 
     public Move GetRandomMove() => Moves[URandom.Range(0, Moves.Count)];
+
+    public void ApplyBoosts(List<StatBoost> statBoosts)
+    {
+        foreach (StatBoost statBoost in statBoosts)
+        {
+            Stat stat = statBoost.stat;
+            Int32 boost = statBoost.boost;
+
+            StatBoosts[stat] = Mathf.Clamp(StatBoosts[stat] + boost, -6, 6);
+            
+            Debug.Log($"{stat} has been boosted to {StatBoosts[stat]}.");
+        }
+    }
 }

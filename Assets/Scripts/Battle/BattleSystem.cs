@@ -237,11 +237,26 @@ public class BattleSystem : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         targetUnit.PlayHitAnimation();
-        DamageDetails damageDetails = targetUnit.Mon.TakeDamage(move, sourceUnit.Mon);
-        yield return targetUnit.HUD.UpdateHP();
-        yield return ShowDamageDetails(damageDetails);
 
-        if (damageDetails.Fainted)
+        if (move.IsStatus)
+        {
+            if (move.Effects.StatBoosts != null)
+            {
+                if (move.Target == MoveTarget.Self)
+                    sourceUnit.Mon.ApplyBoosts(move.Effects.StatBoosts);
+                else
+                    targetUnit.Mon.ApplyBoosts(move.Effects.StatBoosts);
+            }
+        }
+        else
+        {
+            DamageDetails damageDetails = targetUnit.Mon.TakeDamage(move, sourceUnit.Mon);
+            yield return targetUnit.HUD.UpdateHP();
+            yield return ShowDamageDetails(damageDetails);
+        }
+        
+        
+        if (targetUnit.Mon.IsFainted)
         {
             yield return _dialogBox.TypeDialog($"{targetUnit.Mon.Name} fainted");
             targetUnit.PlayFaintAnimation();
