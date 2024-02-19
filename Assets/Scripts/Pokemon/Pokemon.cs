@@ -45,6 +45,7 @@ public class Pokemon
 
     public List<LearnableMove> LearnableMoves => Base.LearnableMoves;
     public List<Move> Moves { get; set; }
+    public Move CurrentMove { get; set; }
     
     public Condition Status { get; private set; }
     public Int32 StatusTime { get; set; }
