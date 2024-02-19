@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TMPro.EditorUtilities;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ public class Move
     public PokemonType Type => Base.Type;
     public Int32 Power => Base.Power;
     public Int32 Accuracy => Base.Accuracy;
+    public Boolean AlwaysHits => Base.AlwaysHits;
     public Int32 MaxPP => Base.PP;
 
     public Boolean IsSpecial => Category == MoveCategory.Special;
@@ -19,6 +21,7 @@ public class Move
     
     public MoveCategory Category => Base.Category;
     public MoveEffects Effects => Base.Effects;
+    public List<SecondaryEffects> SecondaryEffects => Base.SecondaryEffects;
     public MoveTarget Target => Base.Target;
     
     public Int32 CurrentPP { get; set; }

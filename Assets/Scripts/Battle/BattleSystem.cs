@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using URandom = UnityEngine.Random;
 
 public class BattleSystem : MonoBehaviour
 {
@@ -247,34 +248,52 @@ public class BattleSystem : MonoBehaviour
         
         move.CurrentPP--;
         yield return _dialogBox.TypeDialog($"{sourceUnit.Mon.Name} used {move.Name}.");
-        
-        sourceUnit.PlayAttackAnimation();
-        yield return new WaitForSeconds(1f);
 
-        targetUnit.PlayHitAnimation();
-
-        if (move.IsStatus)
+        if (CheckIfMoveHits(move, sourceUnit.Mon, targetUnit.Mon))
         {
-            yield return RunMoveEffects(move, sourceUnit.Mon, targetUnit.Mon);
+            sourceUnit.PlayAttackAnimation();
+            yield return new WaitForSeconds(1f);
+
+            targetUnit.PlayHitAnimation();
+
+            if (move.IsStatus)
+            {
+                yield return RunMoveEffects(move.Effects, sourceUnit.Mon, targetUnit.Mon, move.Target);
+            }
+            else
+            {
+                DamageDetails damageDetails = targetUnit.Mon.TakeDamage(move, sourceUnit.Mon);
+                yield return targetUnit.HUD.UpdateHP();
+                yield return ShowDamageDetails(damageDetails);
+            }
+
+            if (move.SecondaryEffects is { Count: > 0 } && !targetUnit.Mon.IsFainted)
+            {
+                foreach (SecondaryEffects secondary in move.SecondaryEffects)
+                {
+                    Int32 rnd = URandom.Range(1, 101);
+                    if (rnd <= secondary.Chance)
+                        yield return RunMoveEffects(secondary, sourceUnit.Mon, targetUnit.Mon, secondary.Target);
+                }
+            }
+
+            if (targetUnit.Mon.IsFainted)
+            {
+                yield return _dialogBox.TypeDialog($"{targetUnit.Mon.Name} fainted");
+
+                targetUnit.PlayFaintAnimation();
+
+                yield return new WaitForSeconds(2f);
+
+                CheckForBattleOver(targetUnit);
+            }
         }
         else
         {
-            DamageDetails damageDetails = targetUnit.Mon.TakeDamage(move, sourceUnit.Mon);
-            yield return targetUnit.HUD.UpdateHP();
-            yield return ShowDamageDetails(damageDetails);
-        }
-        
-        
-        if (targetUnit.Mon.IsFainted)
-        {
-            yield return _dialogBox.TypeDialog($"{targetUnit.Mon.Name} fainted");
-            targetUnit.PlayFaintAnimation();
+            yield return _dialogBox.TypeDialog($"{targetUnit.Mon.Name}'s attack missed!");
 
-            yield return new WaitForSeconds(2f);
-
-            CheckForBattleOver(targetUnit);
         }
-        
+
         sourceUnit.Mon.OnAfterTurn();
         yield return ShowStatusChanges(sourceUnit.Mon);
         yield return sourceUnit.HUD.UpdateHP();
@@ -319,12 +338,11 @@ public class BattleSystem : MonoBehaviour
             StartCoroutine(EnemyMove());
     }
 
-    private IEnumerator RunMoveEffects(Move move, Pokemon source, Pokemon target)
+    private IEnumerator RunMoveEffects(MoveEffects effects, Pokemon source, Pokemon target, MoveTarget moveTarget)
     {
-        MoveEffects effects = move.Effects;
         if (effects.StatBoosts != null)
         {
-            if (move.Target == MoveTarget.Self)
+            if (moveTarget == MoveTarget.Self)
                 source.ApplyBoosts(effects.StatBoosts);
             else
                 target.ApplyBoosts(effects.StatBoosts);
@@ -337,5 +355,29 @@ public class BattleSystem : MonoBehaviour
 
         yield return ShowStatusChanges(source);
         yield return ShowStatusChanges(target);
+    }
+
+    private Boolean CheckIfMoveHits(Move move, Pokemon source, Pokemon target)
+    {
+        if (move.AlwaysHits)
+            return true;
+        
+        Single moveAccuracy = move.Accuracy;
+        Int32 accuracy = source.StatBoosts[Stat.Accuracy];
+        Int32 evasion = target.StatBoosts[Stat.Evasion];
+
+        Single[] boostValues = { 1f, 4f / 3f, 5f / 3f, 2f, 7f / 3f, 8f / 3f, 3f };
+
+        if (accuracy > 0)
+            moveAccuracy *= boostValues[accuracy];
+        else if (accuracy < 0)
+            moveAccuracy /= boostValues[-accuracy];
+
+        if (evasion > 0)
+            moveAccuracy /= boostValues[evasion];
+        else if (evasion < 0)
+            moveAccuracy *= boostValues[-evasion];
+
+        return URandom.Range(1, 101) <= moveAccuracy;
     }
 }
