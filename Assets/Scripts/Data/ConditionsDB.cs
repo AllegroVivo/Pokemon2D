@@ -4,6 +4,12 @@ using URandom = UnityEngine.Random;
 
 public class ConditionsDB
 {
+    public static void Init()
+    {
+        foreach (var kvp in Conditions)
+            kvp.Value.ID = kvp.Key;
+    }
+    
     public static Dictionary<ConditionID, Condition> Conditions { get; set; } = new()
     {
         {
@@ -95,6 +101,38 @@ public class ConditionsDB
                     
                     mon.StatusTime--;
                     mon.StatusChanges.Enqueue($"{mon.Name} is fast asleep");
+                    return false;
+                }
+            }
+        },
+        {
+            ConditionID.Confusion,
+            new Condition
+            {
+                Name = "Confusion",
+                ShortName = "",
+                StartMessage = "has become confused",
+                OnStart = mon =>
+                {
+                    mon.VolatileStatusTime = URandom.Range(1, 5);
+                },
+                OnBeforeMove = mon =>
+                {
+                    if (mon.VolatileStatusTime <= 0)
+                    {
+                        mon.CureVolatileStatus();
+                        mon.StatusChanges.Enqueue($"{mon.Name} is no longer confused!");
+                        return true;
+                    }
+                    
+                    mon.VolatileStatusTime--;
+
+                    if (URandom.Range(1, 3) == 1)
+                        return true;
+                    
+                    mon.StatusChanges.Enqueue($"{mon.Name} is confused");
+                    mon.UpdateHP(mon.MaxHP / 8);
+                    mon.StatusChanges.Enqueue("It hurt itself due to its confusion!");
                     return false;
                 }
             }

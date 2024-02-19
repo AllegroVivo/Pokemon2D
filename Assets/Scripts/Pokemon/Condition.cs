@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Condition
 {
+    public ConditionID ID { get; set; }
     public String Name { get; set; }
     public String ShortName { get; set; }
     public String Description { get; set; }

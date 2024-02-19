@@ -7,5 +7,6 @@ public enum ConditionID
     Burn,
     Sleep,
     Paralyze,
-    Freeze
+    Freeze,
+    Confusion
 }

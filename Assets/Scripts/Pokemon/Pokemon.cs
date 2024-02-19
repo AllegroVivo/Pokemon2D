@@ -48,6 +48,11 @@ public class Pokemon
     
     public Condition Status { get; private set; }
     public Int32 StatusTime { get; set; }
+    
+    public Condition VolatileStatus { get; private set; }
+    public Int32 VolatileStatusTime { get; set; }
+
+    public event Action OnStatusChanged;
 
     public void Init()
     {
@@ -64,6 +69,9 @@ public class Pokemon
         CurrentHP = MaxHP;
 
         ResetStatBoosts();
+        
+        Status = null;
+        VolatileStatus = null;
     }
 
     private void ResetStatBoosts()
@@ -151,19 +159,40 @@ public class Pokemon
 
     public void OnBattleOver()
     {
+        VolatileStatus = null;
         ResetStatBoosts();
     }
 
     public void SetStatus(ConditionID condition)
     {
+        if (Status != null)
+            return;
+        
         Status = ConditionsDB.Conditions[condition];
-        Status?.OnStart?.Invoke(this);
-        StatusChanges.Enqueue($"{Name} {Status.StartMessage}");
+        Status!.OnStart?.Invoke(this);
+        StatusChanges.Enqueue($"{Name} {Status!.StartMessage}");
+        OnStatusChanged?.Invoke();
     }
 
     public void CureStatus()
     {
         Status = null;
+        OnStatusChanged?.Invoke();
+    }
+    
+    public void SetVolatileStatus(ConditionID condition)
+    {
+        if (VolatileStatus != null)
+            return;
+        
+        VolatileStatus = ConditionsDB.Conditions[condition];
+        VolatileStatus!.OnStart?.Invoke(this);
+        StatusChanges.Enqueue($"{Name} {VolatileStatus!.StartMessage}");
+    }
+
+    public void CureVolatileStatus()
+    {
+        VolatileStatus = null;
     }
 
     public void UpdateHP(Int32 damage)
@@ -174,14 +203,26 @@ public class Pokemon
 
     public Boolean OnBeforeMove()
     {
+        Boolean canPerformMove = true;
+        
         if (Status?.OnBeforeMove != null)
-            return Status.OnBeforeMove(this);
+        {
+            if (!Status.OnBeforeMove(this))
+                canPerformMove = false;
+        }
+        
+        if (VolatileStatus?.OnBeforeMove != null)
+        {
+            if (!VolatileStatus.OnBeforeMove(this))
+                canPerformMove = false;
+        }
 
-        return true;
+        return canPerformMove;
     }
 
     public void OnAfterTurn()
     {
         Status?.OnAfterTurn?.Invoke(this);
+        VolatileStatus?.OnAfterTurn?.Invoke(this);
     }
 }
