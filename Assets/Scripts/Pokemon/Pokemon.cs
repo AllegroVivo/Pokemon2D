@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using URandom = UnityEngine.Random;
 
@@ -144,7 +145,11 @@ public class Pokemon
         return damageDetails;
     }
 
-    public Move GetRandomMove() => Moves[URandom.Range(0, Moves.Count)];
+    public Move GetRandomMove()
+    {
+        List<Move> movesWithPP = Moves.Where(x => x.CurrentPP > 0).ToList(); 
+        return movesWithPP[URandom.Range(0, movesWithPP.Count)];
+    }
 
     public void ApplyBoosts(List<StatBoost> statBoosts)
     {

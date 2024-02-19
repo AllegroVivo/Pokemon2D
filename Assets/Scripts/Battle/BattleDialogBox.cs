@@ -64,6 +64,7 @@ public class BattleDialogBox : MonoBehaviour
             _moveTexts[i].color = i == selectedMove ? _highlightColor : Color.black;
 
         _ppText.text = $"PP {move.CurrentPP}/{move.MaxPP}";
+        _ppText.color = move.CurrentPP <= 0 ? Color.red : Color.black;
         _typeText.text = move.Type.ToString();
     }
 }

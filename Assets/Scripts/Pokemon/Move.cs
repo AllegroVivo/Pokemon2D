@@ -15,6 +15,7 @@ public class Move
     public Int32 Accuracy => Base.Accuracy;
     public Boolean AlwaysHits => Base.AlwaysHits;
     public Int32 MaxPP => Base.PP;
+    public Int32 Priority => Base.Priority;
 
     public Boolean IsSpecial => Category == MoveCategory.Special;
     public Boolean IsStatus => Category == MoveCategory.Status;

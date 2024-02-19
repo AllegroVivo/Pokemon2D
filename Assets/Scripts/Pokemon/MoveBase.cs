@@ -14,6 +14,7 @@ public class MoveBase : ScriptableObject
     [SerializeField] private Int32 _accuracy;
     [SerializeField] private Boolean _alwaysHits;
     [SerializeField] private Int32 _pp;
+    [SerializeField] private Int32 _priority;
     
     [SerializeField] private MoveCategory _category;
     [SerializeField] private MoveEffects _effects;
@@ -28,6 +29,7 @@ public class MoveBase : ScriptableObject
     public Int32 Accuracy => _accuracy;
     public Boolean AlwaysHits => _alwaysHits;
     public Int32 PP => _pp;
+    public Int32 Priority => _priority;
 
     public MoveCategory Category => _category;
 
