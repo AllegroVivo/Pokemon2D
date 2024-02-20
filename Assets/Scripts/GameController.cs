@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public enum GameState { FreeRoam, Battle, Dialog }
+public enum GameState { FreeRoam, Battle, Dialog, Cutscene }
 
 public class GameController : MonoBehaviour
 {
@@ -19,6 +19,16 @@ public class GameController : MonoBehaviour
     private void Start()
     {
         _playerController.OnEncountered += StartBattle;
+        _playerController.OnEnterTrainerView += trainerColl =>
+        {
+            TrainerController trainer = trainerColl.GetComponentInParent<TrainerController>();
+            if (trainer != null)
+            {
+                _state = GameState.Cutscene;
+                StartCoroutine(trainer.TriggerTrainerBattle(_playerController));
+            }
+        };
+        
         _battleSystem.OnBattleOver += EndBattle;
         
         DialogManager.I.OnShowDialog += () =>

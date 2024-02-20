@@ -6,6 +6,7 @@ using URandom = UnityEngine.Random;
 public class PlayerController : MonoBehaviour
 {
     public event Action OnEncountered;
+    public event Action<Collider2D> OnEnterTrainerView;
     
     private Vector2 _input;
     private Character _character;
@@ -27,7 +28,7 @@ public class PlayerController : MonoBehaviour
 
             if (_input != Vector2.zero)
             {
-                StartCoroutine(_character.Move(_input, CheckForEncounters));
+                StartCoroutine(_character.Move(_input, OnMoveOver));
             }
         }
         
@@ -57,5 +58,21 @@ public class PlayerController : MonoBehaviour
         Collider2D coll = Physics2D.OverlapCircle(interactPos, 0.3f, GameLayers.I.InteractableLayer);
         if (coll != null)
             coll.GetComponent<IInteractable>()?.Interact(transform);
+    }
+
+    private void CheckIfInTrainersView()
+    {
+        Collider2D coll = Physics2D.OverlapCircle(transform.position, 0.2f, GameLayers.I.FoVLayer);
+        if (coll != null)
+        {
+            _character.Animator.IsMoving = false;
+            OnEnterTrainerView?.Invoke(coll);
+        }
+    }
+
+    private void OnMoveOver()
+    {
+        CheckForEncounters();
+        CheckIfInTrainersView();
     }
 }
