@@ -15,11 +15,11 @@ public class PlayerController : MonoBehaviour
     private Boolean isMoving;
     private Vector2 _input;
 
-    private Animator _animator;
+    private CharacterAnimator _animator;
 
     private void Awake()
     {
-        _animator = GetComponent<Animator>();
+        _animator = GetComponent<CharacterAnimator>();
     }
 
     public void HandleUpdate()
@@ -34,8 +34,8 @@ public class PlayerController : MonoBehaviour
 
             if (_input != Vector2.zero)
             {
-                _animator.SetFloat("MoveX", _input.x);
-                _animator.SetFloat("MoveY", _input.y);
+                _animator.MoveX = _input.x;
+                _animator.MoveY = _input.y;
                 
                 Vector2 targetPos = transform.position;
                 targetPos.x += _input.x;
@@ -46,7 +46,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        _animator.SetBool("IsMoving", isMoving);
+        _animator.IsMoving = isMoving;
         
         if (Input.GetKeyDown(KeyCode.Z))
             Interact();
@@ -77,7 +77,7 @@ public class PlayerController : MonoBehaviour
         {
             if (URandom.Range(1, 101) <= 10)
             {
-                _animator.SetBool("IsMoving", false);
+                _animator.IsMoving = false;
                 OnEncountered?.Invoke();
             }
         }
@@ -85,7 +85,7 @@ public class PlayerController : MonoBehaviour
 
     private void Interact()
     {
-        Vector3 facingDir = new(_animator.GetFloat("MoveX"), _animator.GetFloat("MoveY"));
+        Vector3 facingDir = new(_animator.MoveX, _animator.MoveY);
         Vector3 interactPos = transform.position + facingDir;
 
         Collider2D coll = Physics2D.OverlapCircle(interactPos, 0.3f, interactableLayer);
