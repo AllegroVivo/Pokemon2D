@@ -3,5 +3,6 @@
 public enum NPCState
 {
     Idle, 
-    Walking
+    Walking,
+    Dialog
 }

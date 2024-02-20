@@ -21,17 +21,23 @@ public class NPCController : MonoBehaviour, IInteractable
         _character = GetComponent<Character>();
     }
 
-    public void Interact()
+    public void Interact(Transform initiator)
     {
         if (_state == NPCState.Idle)
-            StartCoroutine(DialogManager.I.ShowDialog(_dialog));
+        {
+            _state = NPCState.Dialog;
+            _character.LookTowards(initiator.position);
+            
+            StartCoroutine(DialogManager.I.ShowDialog(_dialog, () =>
+            {
+                _idleTimer = 0f;
+                _state = NPCState.Idle; 
+            }));
+        }
     }
 
     private void Update()
     {
-        if (DialogManager.I.IsShowing)
-            return;
-        
         if (_state == NPCState.Idle)
         {
             _idleTimer += Time.deltaTime;
@@ -50,9 +56,11 @@ public class NPCController : MonoBehaviour, IInteractable
     {
         _state = NPCState.Walking;
 
+        Vector3 oldPos = transform.position;
         yield return _character.Move(_movePatterns[_currentPattern]);
 
-        _currentPattern = (_currentPattern + 1) % _movePatterns.Count;
+        if (transform.position != oldPos)
+            _currentPattern = (_currentPattern + 1) % _movePatterns.Count;
 
         _state = NPCState.Idle;
     }
