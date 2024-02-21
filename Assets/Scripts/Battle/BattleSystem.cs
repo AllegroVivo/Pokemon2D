@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using URandom = UnityEngine.Random;
 
 public class BattleSystem : MonoBehaviour
@@ -10,6 +11,9 @@ public class BattleSystem : MonoBehaviour
 
     [SerializeField] private BattleDialogBox _dialogBox;
     [SerializeField] private PartyScreen _partyScreen;
+
+    [SerializeField] private Image _playerImage;
+    [SerializeField] private Image _trainerImage;
 
     public event Action<Boolean> OnBattleOver;
 
@@ -21,7 +25,12 @@ public class BattleSystem : MonoBehaviour
     private BattleState? _prevState;
     
     private PokemonParty _playerParty;
+    private PokemonParty _trainerParty;
     private Pokemon _wildMon;
+    private Boolean _isTrainerBattle = false;
+
+    private PlayerController _playerController;
+    private TrainerController _trainerController;
 
     public void StartBattle(PokemonParty playerParty, Pokemon wildMon)
     {
@@ -159,14 +168,47 @@ public class BattleSystem : MonoBehaviour
 
     private IEnumerator SetupBattle()
     {
-        _playerUnit.Setup(_playerParty.GetHealthyPokemon());
-        _enemyUnit.Setup(_wildMon);
+        _playerUnit.Clear();
+        _enemyUnit.Clear();
+        
+        if (!_isTrainerBattle)
+        {
+            _playerUnit.Setup(_playerParty.GetHealthyPokemon());
+            _enemyUnit.Setup(_wildMon);
+            _dialogBox.SetMoveNames(_playerUnit.Mon.Moves);
+        
+            yield return _dialogBox.TypeDialog($"A wild {_enemyUnit.Mon.Name} appeared!");
+            
+        }
+        else
+        {
+            _playerUnit.gameObject.SetActive(false);
+            _enemyUnit.gameObject.SetActive(false);
+
+            _playerImage.gameObject.SetActive(true);
+            _trainerImage.gameObject.SetActive(true);
+
+            _playerImage.sprite = _playerController.Sprite;
+            _trainerImage.sprite = _trainerController.Sprite;
+
+            yield return _dialogBox.TypeDialog($"{_trainerController.Name} wants to battle!");
+
+            _trainerImage.gameObject.SetActive(false);
+            _enemyUnit.gameObject.SetActive(true);
+            
+            _enemyUnit.Setup(_trainerParty.GetHealthyPokemon());
+            yield return _dialogBox.TypeDialog($"{_trainerController.Name} sent out {_enemyUnit.Mon.Name}");
+
+            _playerImage.gameObject.SetActive(false);
+            _playerUnit.gameObject.SetActive(true);
+            
+            _playerUnit.Setup(_playerParty.GetHealthyPokemon());
+            yield return _dialogBox.TypeDialog($"Go, {_playerUnit.Mon.Name}!");
+
+            _dialogBox.SetMoveNames(_playerUnit.Mon.Moves);
+        }
         
         _partyScreen.Init();
-        _dialogBox.SetMoveNames(_playerUnit.Mon.Moves);
-        
-        yield return _dialogBox.TypeDialog($"A wild {_enemyUnit.Mon.Name} appeared!");
-
         ActionSelection();
     }
 
@@ -322,7 +364,18 @@ public class BattleSystem : MonoBehaviour
         }
         else
         {
-            BattleOver(true);
+            if (!_isTrainerBattle)
+            {
+                BattleOver(true);
+            }
+            else
+            {
+                Pokemon nextMon = _trainerParty.GetHealthyPokemon();
+                if (nextMon != null)
+                    StartCoroutine(SendNextTrainerPokemon(nextMon));
+                else
+                    BattleOver(true);
+            }
         }
     }
 
@@ -424,5 +477,27 @@ public class BattleSystem : MonoBehaviour
 
         if (_state != BattleState.BattleOver)
             ActionSelection();
+    }
+
+    public void StartTrainerBattle(PokemonParty playerParty, PokemonParty trainerParty)
+    {
+        _playerParty = playerParty;
+        _trainerParty = trainerParty;
+        _isTrainerBattle = true;
+
+        _playerController = _playerParty.GetComponent<PlayerController>();
+        _trainerController = _trainerParty.GetComponent<TrainerController>();
+
+        StartCoroutine(SetupBattle());
+    }
+
+    private IEnumerator SendNextTrainerPokemon(Pokemon nextMon)
+    {
+        _state = BattleState.Busy;
+
+        _enemyUnit.Setup(nextMon);
+        yield return _dialogBox.TypeDialog($"{_trainerController.Name} sent out {_enemyUnit.Mon.Name}");
+
+        _state = BattleState.RunningTurn;
     }
 }

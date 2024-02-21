@@ -5,11 +5,17 @@ using URandom = UnityEngine.Random;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private String _name;
+    [SerializeField] private Sprite _sprite;
+    
     public event Action OnEncountered;
     public event Action<Collider2D> OnEnterTrainerView;
     
     private Vector2 _input;
     private Character _character;
+    
+    public Sprite Sprite => _sprite;
+    public String Name => _name;
 
     private void Awake()
     {

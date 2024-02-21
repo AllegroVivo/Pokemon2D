@@ -29,10 +29,16 @@ public class BattleUnit : MonoBehaviour
         Mon = mon;
         _image.sprite = _isPlayerUnit ? Mon.BackSprite : Mon.FrontSprite;
 
+        _hud.gameObject.SetActive(true);
         _hud.SetData(Mon);
 
         _image.color = _originalColor;
         PlayEnterAnimation();
+    }
+
+    public void Clear()
+    {
+        _hud.gameObject.SetActive(false);
     }
 
     public void PlayEnterAnimation()
