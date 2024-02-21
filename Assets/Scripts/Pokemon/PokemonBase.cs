@@ -24,6 +24,9 @@ public class PokemonBase : ScriptableObject
     [SerializeField] private List<LearnableMove> _learnableMoves;
 
     [SerializeField] private Int32 _catchRate = 255;
+    [SerializeField] private Int32 _expYield;
+    
+    [SerializeField] private GrowthRate _growthRate;
 
     public String Name => _name;
     public String Description => _description;
@@ -44,4 +47,19 @@ public class PokemonBase : ScriptableObject
     public List<LearnableMove> LearnableMoves => _learnableMoves;
 
     public Int32 CatchRate => _catchRate;
+    public Int32 EXPYield => _expYield;
+
+    public GrowthRate GrowthRate => _growthRate;
+
+    public Int32 GetEXPForLevel(Int32 level)
+    {
+        return _growthRate switch
+        {
+            GrowthRate.Fast => 4 * level * level * level / 5,
+            GrowthRate.MediumFast => level * level * level,
+            GrowthRate.MediumSlow => 6 / 5 * level * level * level - 15 * level * level + 100 * level - 140,
+            GrowthRate.Slow => 5 * level * level * level / 4,
+            _ => throw new NotImplementedException("EXP Type not implemented.")
+        };
+    }
 }

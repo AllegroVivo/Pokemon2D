@@ -27,3 +27,6 @@ MonoBehaviour:
   _learnableMoves:
   - _moveBase: {fileID: 11400000, guid: 6b2c99eadb094634c9eaacc19438eae7, type: 2}
     _level: 3
+  _catchRate: 255
+  _expYield: 236
+  _growthRate: 3

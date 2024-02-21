@@ -377,15 +377,7 @@ public class BattleSystem : MonoBehaviour
             }
 
             if (targetUnit.Mon.IsFainted)
-            {
-                yield return _dialogBox.TypeDialog($"{targetUnit.Mon.Name} fainted");
-
-                targetUnit.PlayFaintAnimation();
-
-                yield return new WaitForSeconds(2f);
-
-                CheckForBattleOver(targetUnit);
-            }
+                yield return HandlePokemonFainted(targetUnit);
         }
         else
         {
@@ -408,12 +400,7 @@ public class BattleSystem : MonoBehaviour
         
         if (sourceUnit.Mon.IsFainted)
         {
-            yield return _dialogBox.TypeDialog($"{sourceUnit.Mon.Name} fainted");
-            sourceUnit.PlayFaintAnimation();
-
-            yield return new WaitForSeconds(2f);
-
-            CheckForBattleOver(sourceUnit);
+            yield return HandlePokemonFainted(sourceUnit);
             yield return new WaitUntil(() => _state == BattleState.RunningTurn);
         }
     }
@@ -701,5 +688,29 @@ public class BattleSystem : MonoBehaviour
                 _state = BattleState.RunningTurn;
             }
         }
+    }
+
+    private IEnumerator HandlePokemonFainted(BattleUnit faintedUnit)
+    {
+        yield return _dialogBox.TypeDialog($"{faintedUnit.Mon.Name} fainted");
+        faintedUnit.PlayFaintAnimation();
+        yield return new WaitForSeconds(2f);
+
+        if (!faintedUnit.IsPlayer)
+        {
+            Int32 expAmt = faintedUnit.Mon.EXPYield;
+            Int32 faintedLevel = faintedUnit.Mon.Level;
+            Single trainerBonus = _isTrainerBattle ? 1.5f : 1f;
+
+            Int32 expGain = Mathf.FloorToInt(expAmt * faintedLevel * trainerBonus / 7);
+            _playerUnit.Mon.EXP += expGain;
+            yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} gained {expGain} exp");
+
+            yield return _playerUnit.HUD.SetEXPSmooth();
+
+            yield return new WaitForSeconds(1f);
+        }
+
+        CheckForBattleOver(faintedUnit);
     }
 }

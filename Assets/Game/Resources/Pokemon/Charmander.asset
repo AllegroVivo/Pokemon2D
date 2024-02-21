@@ -33,3 +33,6 @@ MonoBehaviour:
     _level: 7
   - _moveBase: {fileID: 11400000, guid: 7416451032d85574ba474918b33bf2bd, type: 2}
     _level: 7
+  _catchRate: 255
+  _expYield: 62
+  _growthRate: 3

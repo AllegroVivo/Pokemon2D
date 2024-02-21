@@ -30,6 +30,11 @@ public class Pokemon
     public Int32 BaseSpeed => Base.Speed;
 
     public Int32 CatchRate => Base.CatchRate;
+    public Int32 EXPYield => Base.EXPYield;
+
+    public GrowthRate GrowthRate => Base.GrowthRate;
+    
+    public Int32 EXP { get; set; }
 
     public Int32 MaxHP { get; private set; }
     public Int32 CurrentHP { get; set; }
@@ -76,6 +81,8 @@ public class Pokemon
             if (Moves.Count >= 4)
                 break;
         }
+
+        EXP = Base.GetEXPForLevel(_level);
         
         CalculateStats();
         CurrentHP = MaxHP;

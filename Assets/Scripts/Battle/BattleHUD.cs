@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +11,7 @@ public class BattleHUD : MonoBehaviour
     [SerializeField] private Text _levelText;
     [SerializeField] private Text _statusText;
     [SerializeField] private HPBar _hpBar;
+    [SerializeField] private GameObject _expBar;
     
     [SerializeField] private Color _poisonColor;
     [SerializeField] private Color _burnColor;
@@ -27,7 +29,9 @@ public class BattleHUD : MonoBehaviour
         
         _nameText.text = mon.Name;
         _levelText.text = "Lvl " + mon.Level;
+        
         _hpBar.SetHP((Single)mon.CurrentHP / mon.MaxHP);
+        SetEXP();
 
         _statusColors = new Dictionary<ConditionID, Color>
         {
@@ -57,5 +61,28 @@ public class BattleHUD : MonoBehaviour
             yield return _hpBar.SetHPSmooth((Single)_mon.CurrentHP / _mon.MaxHP);
             _mon.HPChanged = false;
         }
+    }
+
+    public void SetEXP()
+    {
+        if (_expBar == null)
+            return;
+
+        _expBar.transform.localScale = new Vector3(GetNormalizedEXP(), 1f, 1f);
+    }
+
+    private Single GetNormalizedEXP()
+    {
+        Int32 currLevelExp = _mon.Base.GetEXPForLevel(_mon.Level);
+        Int32 nextLevelExp = _mon.Base.GetEXPForLevel(_mon.Level + 1);
+        return Mathf.Clamp01((Single)(_mon.EXP - currLevelExp) / (nextLevelExp - currLevelExp));
+    }
+
+    public IEnumerator SetEXPSmooth()
+    {
+        if (_expBar == null)
+            yield break;
+
+        yield return _expBar.transform.DOScaleX(GetNormalizedEXP(), 1.5f).WaitForCompletion();
     }
 }
