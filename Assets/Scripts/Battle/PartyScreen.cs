@@ -13,7 +13,7 @@ public class PartyScreen : MonoBehaviour
 
     public void Init()
     {
-        _memberSlots = GetComponentsInChildren<PartyMemberUI>();
+        _memberSlots = GetComponentsInChildren<PartyMemberUI>(true);
     }
 
     public void SetPartyData(List<Pokemon> monList)
@@ -23,9 +23,14 @@ public class PartyScreen : MonoBehaviour
         for (Int32 i = 0; i < _memberSlots.Length; i++)
         {
             if (i < monList.Count)
+            {
+                _memberSlots[i].gameObject.SetActive(true);
                 _memberSlots[i].SetData(monList[i]);
+            }
             else
+            {
                 _memberSlots[i].gameObject.SetActive(false);
+            }
         }
 
         _messageText.text = "Choose a Pokemon...";

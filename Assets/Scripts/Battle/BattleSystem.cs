@@ -24,6 +24,8 @@ public class BattleSystem : MonoBehaviour
     private Int32 _currentMove;
     private Int32 _currentMember;
     private Boolean _aboutToUseChoice = true;
+
+    private Int32 _escapeAttempts;
     
     private BattleState _state;
     private BattleState? _prevState;
@@ -90,7 +92,7 @@ public class BattleSystem : MonoBehaviour
             }
             else if (_currentAction == 3)
             {
-                // Run
+                StartCoroutine(RunTurns(BattleAction.Run));
             }
         }
     }
@@ -260,6 +262,8 @@ public class BattleSystem : MonoBehaviour
             _dialogBox.SetMoveNames(_playerUnit.Mon.Moves);
         }
         
+        _escapeAttempts = 0;
+
         _partyScreen.Init();
         ActionSelection();
     }
@@ -536,6 +540,10 @@ public class BattleSystem : MonoBehaviour
                 _dialogBox.EnableActionSelector(false);
                 yield return ThrowPokeball();
             }
+            else if (playerAction == BattleAction.Run)
+            {
+                yield return TryToEscape();
+            }
 
             yield return RunMove(_enemyUnit, _playerUnit, _enemyUnit.Mon.GetRandomMove());
             yield return RunAfterTurn(_enemyUnit);
@@ -653,5 +661,45 @@ public class BattleSystem : MonoBehaviour
         }
 
         return shakeCount;
+    }
+
+    private IEnumerator TryToEscape()
+    {
+        _state = BattleState.Busy;
+
+        if (_isTrainerBattle)
+        {
+            yield return _dialogBox.TypeDialog("You can't run from a trainer battle!");
+
+            _state = BattleState.RunningTurn;
+            yield break;
+        }
+
+        _escapeAttempts++;
+
+        Int32 playerSpeed = _playerUnit.Mon.Speed;
+        Int32 enemySpeed = _enemyUnit.Mon.Speed;
+
+        if (enemySpeed < playerSpeed)
+        {
+            yield return _dialogBox.TypeDialog("Escaped successfully!");
+            BattleOver(true);
+        }
+        else
+        {
+            Single f = (playerSpeed * 128) / enemySpeed + 30 * _escapeAttempts;
+            f %= 256;
+
+            if (URandom.Range(0, 256) < f)
+            {
+                yield return _dialogBox.TypeDialog("Escaped successfully!");
+                BattleOver(true);
+            }
+            else
+            {
+                yield return _dialogBox.TypeDialog("Couldn't escape!");
+                _state = BattleState.RunningTurn;
+            }
+        }
     }
 }
