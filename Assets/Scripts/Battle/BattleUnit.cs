@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,6 +33,7 @@ public class BattleUnit : MonoBehaviour
         _hud.gameObject.SetActive(true);
         _hud.SetData(Mon);
 
+        transform.localScale = new Vector3(1f, 1f, 1f);
         _image.color = _originalColor;
         PlayEnterAnimation();
     }
@@ -68,5 +70,23 @@ public class BattleUnit : MonoBehaviour
         Sequence sequence = DOTween.Sequence();
         sequence.Append(_image.transform.DOLocalMoveY(_originalPos.y - 150f, 0.5f));
         sequence.Join(_image.DOFade(0f, 0.5f));
+    }
+
+    public IEnumerator PlayCaptureAnimation()
+    {
+        Sequence seq = DOTween.Sequence();
+        seq.Append(_image.DOFade(0, 0.5f));
+        seq.Join(transform.DOLocalMoveY(_originalPos.y + 50f, 0.5f));
+        seq.Join(transform.DOScale(new Vector3(0.3f, 0.3f, 1f), 0.5f));
+        yield return seq.WaitForCompletion();
+    }
+    
+    public IEnumerator PlayBreakOutAnimation()
+    {
+        Sequence seq = DOTween.Sequence();
+        seq.Append(_image.DOFade(1, 0.5f));
+        seq.Join(transform.DOLocalMoveY(_originalPos.y, 0.5f));
+        seq.Join(transform.DOScale(new Vector3(1f, 1f, 1f), 0.5f));
+        yield return seq.WaitForCompletion();
     }
 }

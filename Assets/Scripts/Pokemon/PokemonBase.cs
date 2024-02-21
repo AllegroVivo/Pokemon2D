@@ -23,6 +23,8 @@ public class PokemonBase : ScriptableObject
 
     [SerializeField] private List<LearnableMove> _learnableMoves;
 
+    [SerializeField] private Int32 _catchRate = 255;
+
     public String Name => _name;
     public String Description => _description;
     
@@ -40,4 +42,6 @@ public class PokemonBase : ScriptableObject
     public Int32 Speed => _speed;
 
     public List<LearnableMove> LearnableMoves => _learnableMoves;
+
+    public Int32 CatchRate => _catchRate;
 }

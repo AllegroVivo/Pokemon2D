@@ -29,6 +29,8 @@ public class Pokemon
     public Int32 BaseSpDef => Base.SpDef;
     public Int32 BaseSpeed => Base.Speed;
 
+    public Int32 CatchRate => Base.CatchRate;
+
     public Int32 MaxHP { get; private set; }
     public Int32 CurrentHP { get; set; }
     public Boolean IsFainted => CurrentHP <= 0;
@@ -42,7 +44,7 @@ public class Pokemon
     
     public Dictionary<Stat, Int32> Stats { get; private set; }
     public Dictionary<Stat, Int32> StatBoosts { get; private set; }
-    public Queue<String> StatusChanges { get; private set; } = new();
+    public Queue<String> StatusChanges { get; private set; }
 
     public List<LearnableMove> LearnableMoves => Base.LearnableMoves;
     public List<Move> Moves { get; set; }
@@ -55,6 +57,14 @@ public class Pokemon
     public Int32 VolatileStatusTime { get; set; }
 
     public event Action OnStatusChanged;
+
+    public Pokemon(PokemonBase pBase, Int32 level)
+    {
+        _base = pBase;
+        _level = level;
+        
+        Init();
+    }
 
     public void Init()
     {
@@ -70,6 +80,7 @@ public class Pokemon
         CalculateStats();
         CurrentHP = MaxHP;
 
+        StatusChanges = new Queue<String>();
         ResetStatBoosts();
         
         Status = null;

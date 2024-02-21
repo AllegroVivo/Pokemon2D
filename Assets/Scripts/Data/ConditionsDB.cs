@@ -138,4 +138,14 @@ public class ConditionsDB
             }
         }
     };
+
+    public static Single GetStatusBonus(Condition condition)
+    {
+        return condition.ID switch
+        {
+            ConditionID.Paralyze or ConditionID.Poison or ConditionID.Burn => 1.5f,
+            ConditionID.Sleep or ConditionID.Freeze => 2f,
+            _ => 1f
+        };
+    }
 }
