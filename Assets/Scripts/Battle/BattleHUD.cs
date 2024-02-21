@@ -28,7 +28,7 @@ public class BattleHUD : MonoBehaviour
         _mon = mon;
         
         _nameText.text = mon.Name;
-        _levelText.text = "Lvl " + mon.Level;
+        SetLevel();
         
         _hpBar.SetHP((Single)mon.CurrentHP / mon.MaxHP);
         SetEXP();
@@ -78,11 +78,15 @@ public class BattleHUD : MonoBehaviour
         return Mathf.Clamp01((Single)(_mon.EXP - currLevelExp) / (nextLevelExp - currLevelExp));
     }
 
-    public IEnumerator SetEXPSmooth()
+    public IEnumerator SetEXPSmooth(Boolean reset = false)
     {
         if (_expBar == null)
             yield break;
 
+        if (reset)
+            _expBar.transform.localScale = new Vector3(0f, 0f, 0f);
         yield return _expBar.transform.DOScaleX(GetNormalizedEXP(), 1.5f).WaitForCompletion();
     }
+
+    public void SetLevel() => _levelText.text = "Lvl " + _mon.Level;
 }

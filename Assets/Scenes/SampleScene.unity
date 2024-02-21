@@ -9432,9 +9432,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _wildPokemonList:
   - _base: {fileID: 11400000, guid: 49e9462c51470cf48b72c3397730fa49, type: 2}
-    _level: 8
+    _level: 6
   - _base: {fileID: 11400000, guid: 733e7246185fbb84bae8a8becb4a0e6f, type: 2}
-    _level: 8
+    _level: 6
 --- !u!1 &1658217199
 GameObject:
   m_ObjectHideFlags: 0

@@ -251,4 +251,15 @@ public class Pokemon
         Status?.OnAfterTurn?.Invoke(this);
         VolatileStatus?.OnAfterTurn?.Invoke(this);
     }
+
+    public Boolean CheckForLevelUp()
+    {
+        if (EXP > Base.GetEXPForLevel(_level + 1))
+        {
+            _level++;
+            return true;
+        }
+
+        return false;
+    }
 }

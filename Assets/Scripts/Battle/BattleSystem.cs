@@ -44,6 +44,7 @@ public class BattleSystem : MonoBehaviour
         _wildMon = wildMon;
 
         _playerController = _playerParty.GetComponent<PlayerController>();
+        _isTrainerBattle = false;
         
         StartCoroutine(SetupBattle());
     }
@@ -707,6 +708,14 @@ public class BattleSystem : MonoBehaviour
             yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} gained {expGain} exp");
 
             yield return _playerUnit.HUD.SetEXPSmooth();
+
+            while (_playerUnit.Mon.CheckForLevelUp())
+            {
+                _playerUnit.HUD.SetLevel();
+                yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} grew to level {_playerUnit.Mon.Level}!");
+
+                yield return _playerUnit.HUD.SetEXPSmooth(true);
+            }
 
             yield return new WaitForSeconds(1f);
         }
