@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private Camera _worldCamera;
     
     private GameState _state;
+    private TrainerController _trainer;
     
     public static GameController I { get; private set; }
 
@@ -73,6 +74,8 @@ public class GameController : MonoBehaviour
         _battleSystem.gameObject.SetActive(true);
         _worldCamera.gameObject.SetActive(false);
 
+        _trainer = trainer;
+        
         PokemonParty playerParty = _playerController.GetComponent<PokemonParty>();
         PokemonParty trainerParty = trainer.GetComponent<PokemonParty>();
 
@@ -81,6 +84,12 @@ public class GameController : MonoBehaviour
 
     private void EndBattle(Boolean battleWon)
     {
+        if (_trainer!=null && battleWon)
+        {
+            _trainer.BattleLost();
+            _trainer = null;
+        }
+        
         _state = GameState.FreeRoam;
         _battleSystem.gameObject.SetActive(false);
         _worldCamera.gameObject.SetActive(true);

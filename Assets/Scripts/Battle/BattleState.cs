@@ -8,5 +8,6 @@ public enum BattleState
     Busy,
     PartyScreen,
     RunningTurn,
-    BattleOver
+    BattleOver,
+    AboutToUse
 }

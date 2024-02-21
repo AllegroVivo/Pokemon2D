@@ -20,7 +20,8 @@ public class BattleSystem : MonoBehaviour
     private Int32 _currentAction;
     private Int32 _currentMove;
     private Int32 _currentMember;
-
+    private Boolean _aboutToUseChoice = true;
+    
     private BattleState _state;
     private BattleState? _prevState;
     
@@ -48,6 +49,8 @@ public class BattleSystem : MonoBehaviour
             HandleMoveSelection();
         else if (_state == BattleState.PartyScreen)
             HandlePartySelection();
+        else if (_state == BattleState.AboutToUse)
+            HandleAboutToUse();
     }
 
     private void HandleActionSelection()
@@ -161,8 +164,50 @@ public class BattleSystem : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.X))
         {
+            if (_playerUnit.Mon.IsFainted)
+            {           
+                _partyScreen.SetMessageText("You must choose a Pokemon to continue");
+                return;
+            }
+            
             _partyScreen.gameObject.SetActive(false);
-            ActionSelection();
+
+            if (_prevState == BattleState.AboutToUse)
+            {
+                _prevState = null;
+                StartCoroutine(SendNextTrainerPokemon());
+            }
+            else
+            {
+                ActionSelection();
+            }
+        }
+    }
+
+    private void HandleAboutToUse()
+    {
+        if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.UpArrow))
+            _aboutToUseChoice = !_aboutToUseChoice;
+
+        _dialogBox.UpdateChoiceBoxSelection(_aboutToUseChoice);
+
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            _dialogBox.EnableChoiceBox(false);
+            if (_aboutToUseChoice)
+            {
+                _prevState = BattleState.AboutToUse;
+                OpenPartyScreen();
+            }
+            else
+            {
+                StartCoroutine(SendNextTrainerPokemon());
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.X))
+        {
+            _dialogBox.EnableChoiceBox(false);
+            StartCoroutine(SendNextTrainerPokemon());
         }
     }
 
@@ -267,7 +312,15 @@ public class BattleSystem : MonoBehaviour
         _dialogBox.SetMoveNames(newMon.Moves);
         yield return _dialogBox.TypeDialog($"Go {newMon.Name}!");
 
-        _state = BattleState.RunningTurn;
+        if (_prevState == null)
+        {
+            _state = BattleState.RunningTurn;
+        }
+        else if (_prevState == BattleState.AboutToUse)
+        {
+            _prevState = null;
+            StartCoroutine(SendNextTrainerPokemon());
+        }
     }
 
     private IEnumerator RunMove(BattleUnit sourceUnit, BattleUnit targetUnit, Move move)
@@ -350,6 +403,7 @@ public class BattleSystem : MonoBehaviour
             yield return new WaitForSeconds(2f);
 
             CheckForBattleOver(sourceUnit);
+            yield return new WaitUntil(() => _state == BattleState.RunningTurn);
         }
     }
 
@@ -372,7 +426,7 @@ public class BattleSystem : MonoBehaviour
             {
                 Pokemon nextMon = _trainerParty.GetHealthyPokemon();
                 if (nextMon != null)
-                    StartCoroutine(SendNextTrainerPokemon(nextMon));
+                    StartCoroutine(AboutToUse(nextMon));
                 else
                     BattleOver(true);
             }
@@ -491,13 +545,23 @@ public class BattleSystem : MonoBehaviour
         StartCoroutine(SetupBattle());
     }
 
-    private IEnumerator SendNextTrainerPokemon(Pokemon nextMon)
+    private IEnumerator SendNextTrainerPokemon()
     {
         _state = BattleState.Busy;
 
-        _enemyUnit.Setup(nextMon);
+        _enemyUnit.Setup(_trainerParty.GetHealthyPokemon());
         yield return _dialogBox.TypeDialog($"{_trainerController.Name} sent out {_enemyUnit.Mon.Name}");
 
         _state = BattleState.RunningTurn;
+    }
+
+    private IEnumerator AboutToUse(Pokemon newMon)
+    {
+        _state = BattleState.Busy;
+        
+        yield return _dialogBox.TypeDialog($"{_trainerController.Name} is about to use {newMon.Name}. Do you want to change Pokemon?");
+
+        _state = BattleState.AboutToUse;
+        _dialogBox.EnableChoiceBox(true);
     }
 }

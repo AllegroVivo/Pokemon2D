@@ -8,15 +8,20 @@ public class BattleDialogBox : MonoBehaviour
 {
     [SerializeField] private Int32 _lettersPerSecond;
     [SerializeField] private Text _dialogText;
+    
     [SerializeField] private GameObject _actionSelector;
     [SerializeField] private GameObject _moveSelector;
     [SerializeField] private GameObject _moveDetails;
+    [SerializeField] private GameObject _choiceBox;
 
     [SerializeField] private List<Text> _actionTexts;
     [SerializeField] private List<Text> _moveTexts;
 
     [SerializeField] private Text _ppText;
     [SerializeField] private Text _typeText;
+
+    [SerializeField] private Text _yesText;
+    [SerializeField] private Text _noText;
 
     [SerializeField] private Color _highlightColor;
 
@@ -66,5 +71,13 @@ public class BattleDialogBox : MonoBehaviour
         _ppText.text = $"PP {move.CurrentPP}/{move.MaxPP}";
         _ppText.color = move.CurrentPP <= 0 ? Color.red : Color.black;
         _typeText.text = move.Type.ToString();
+    }
+
+    public void EnableChoiceBox(Boolean enable) => _choiceBox.SetActive(enable);
+
+    public void UpdateChoiceBoxSelection(Boolean yesSelected)
+    {
+        _yesText.color = yesSelected ? _highlightColor : Color.black;
+        _noText.color = yesSelected ? Color.black : _highlightColor;
     }
 }
