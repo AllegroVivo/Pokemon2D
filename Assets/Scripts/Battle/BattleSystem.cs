@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,7 @@ public class BattleSystem : MonoBehaviour
     [SerializeField] private Image _trainerImage;
 
     [SerializeField] private GameObject _pokeballPrefab;
+    [SerializeField] private MoveSelectionUI _moveSelectionUI;
 
     public event Action<Boolean> OnBattleOver;
 
@@ -26,6 +28,7 @@ public class BattleSystem : MonoBehaviour
     private Boolean _aboutToUseChoice = true;
 
     private Int32 _escapeAttempts;
+    private MoveBase _moveToLearn;
     
     private BattleState _state;
     private BattleState? _prevState;
@@ -59,6 +62,29 @@ public class BattleSystem : MonoBehaviour
             HandlePartySelection();
         else if (_state == BattleState.AboutToUse)
             HandleAboutToUse();
+        else if (_state == BattleState.MoveToForget)
+        {
+            Action<Int32> onMoveSelected = moveIndex =>
+            {
+                _moveSelectionUI.gameObject.SetActive(false);
+                if (moveIndex == PokemonBase.MaxNumberOfMoves)
+                {
+                    StartCoroutine(_dialogBox.TypeDialog($"{_playerUnit.Mon.Name} did not learn {_moveToLearn.Name}"));
+                }
+                else
+                {
+                    Move selectedMove = _playerUnit.Mon.Moves[moveIndex];
+                    StartCoroutine(_dialogBox.TypeDialog($"{_playerUnit.Mon.Name} forgot {selectedMove.Name}..."));
+                    StartCoroutine(_dialogBox.TypeDialog($"and learned {_moveToLearn.Name}"));
+                    
+                    _playerUnit.Mon.Moves[moveIndex] = new Move(_moveToLearn);
+                }
+
+                _moveToLearn = null;
+                _state = BattleState.RunningTurn;
+            };
+            _moveSelectionUI.HandleMoveSelection(onMoveSelected);
+        }
     }
 
     private void HandleActionSelection()
@@ -723,6 +749,16 @@ public class BattleSystem : MonoBehaviour
                         yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} learned {newMove.Base.Name}");
                         _dialogBox.SetMoveNames(_playerUnit.Mon.Moves);
                     }
+                    else
+                    {
+                        yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} is trying to learn {newMove.Base.Name}...");
+                        yield return _dialogBox.TypeDialog($"But it can't learn more than {PokemonBase.MaxNumberOfMoves} moves");
+
+                        yield return ChooseMoveToForget(_playerUnit.Mon, newMove.Base);
+                        
+                        yield return new WaitUntil(() => _state != BattleState.MoveToForget);
+                        yield return new WaitForSeconds(2f);
+                    }
                 }
                 
                 yield return _playerUnit.HUD.SetEXPSmooth(true);
@@ -732,5 +768,17 @@ public class BattleSystem : MonoBehaviour
         }
 
         CheckForBattleOver(faintedUnit);
+    }
+
+    private IEnumerator ChooseMoveToForget(Pokemon mon, MoveBase newMove)
+    {
+        _state = BattleState.Busy;
+        yield return _dialogBox.TypeDialog("Choose a move you want to forget...");
+
+        _moveSelectionUI.gameObject.SetActive(true);
+        _moveSelectionUI.SetMoveData(mon.Moves.Select(m=>m.Base).ToList(), newMove);
+        _moveToLearn = newMove;
+
+        _state = BattleState.MoveToForget;
     }
 }

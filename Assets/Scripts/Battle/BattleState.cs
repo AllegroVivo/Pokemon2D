@@ -9,5 +9,6 @@ public enum BattleState
     PartyScreen,
     RunningTurn,
     BattleOver,
-    AboutToUse
+    AboutToUse,
+    MoveToForget
 }
