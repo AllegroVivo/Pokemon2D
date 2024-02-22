@@ -10,9 +10,6 @@ public class PlayerController : MonoBehaviour
 
     private const Single offsetY = 0.3f;
     
-    public event Action OnEncountered;
-    public event Action<Collider2D> OnEnterTrainerView;
-    
     private Vector2 _input;
     private Character _character;
     
@@ -39,23 +36,11 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(_character.Move(_input, OnMoveOver));
             }
         }
-        
+
         _character.HandleUpdate();
-        
+
         if (Input.GetKeyDown(KeyCode.Z))
             Interact();
-    }
-
-    private void CheckForEncounters()
-    {
-        if (Physics2D.OverlapCircle(transform.position - new Vector3(0f, offsetY), 0.2f, GameLayers.I.GrassLayer) != null)
-        {
-            if (URandom.Range(1, 101) <= 10)
-            {
-                _character.Animator.IsMoving = false;
-                OnEncountered?.Invoke();
-            }
-        }
     }
 
     private void Interact()
@@ -68,19 +53,20 @@ public class PlayerController : MonoBehaviour
             coll.GetComponent<IInteractable>()?.Interact(transform);
     }
 
-    private void CheckIfInTrainersView()
-    {
-        Collider2D coll = Physics2D.OverlapCircle(transform.position - new Vector3(0f, offsetY), 0.2f, GameLayers.I.FoVLayer);
-        if (coll != null)
-        {
-            _character.Animator.IsMoving = false;
-            OnEnterTrainerView?.Invoke(coll);
-        }
-    }
-
     private void OnMoveOver()
     {
-        CheckForEncounters();
-        CheckIfInTrainersView();
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(
+            transform.position - new Vector3(0f, offsetY), 0.2f, GameLayers.I.TriggerableLayers);
+
+        foreach (Collider2D coll in colliders)
+        {
+            IPlayerTriggerable triggerable = coll.GetComponent<IPlayerTriggerable>();
+            if (triggerable != null)
+            {
+                _character.Animator.IsMoving = false;
+                triggerable.OnPlayerTriggered(this);
+                break;
+            }
+        }
     }
 }
