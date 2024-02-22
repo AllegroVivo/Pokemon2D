@@ -714,6 +714,17 @@ public class BattleSystem : MonoBehaviour
                 _playerUnit.HUD.SetLevel();
                 yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} grew to level {_playerUnit.Mon.Level}!");
 
+                LearnableMove newMove = _playerUnit.Mon.GetLearnableMoveAtCurrentLevel();
+                if (newMove != null)
+                {
+                    if (_playerUnit.Mon.Moves.Count < PokemonBase.MaxNumberOfMoves)
+                    {
+                        _playerUnit.Mon.LearnMove(newMove);
+                        yield return _dialogBox.TypeDialog($"{_playerUnit.Mon.Name} learned {newMove.Base.Name}");
+                        _dialogBox.SetMoveNames(_playerUnit.Mon.Moves);
+                    }
+                }
+                
                 yield return _playerUnit.HUD.SetEXPSmooth(true);
             }
 

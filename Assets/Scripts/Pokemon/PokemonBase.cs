@@ -28,6 +28,8 @@ public class PokemonBase : ScriptableObject
     
     [SerializeField] private GrowthRate _growthRate;
 
+    public static Int32 MaxNumberOfMoves = 4;
+
     public String Name => _name;
     public String Description => _description;
     

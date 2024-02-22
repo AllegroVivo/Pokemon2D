@@ -78,7 +78,7 @@ public class Pokemon
         {
             if (move.Level <= Level)
                 Moves.Add(new Move(move.Base));
-            if (Moves.Count >= 4)
+            if (Moves.Count >= PokemonBase.MaxNumberOfMoves)
                 break;
         }
 
@@ -261,5 +261,15 @@ public class Pokemon
         }
 
         return false;
+    }
+
+    public LearnableMove GetLearnableMoveAtCurrentLevel() => LearnableMoves.FirstOrDefault(x => x.Level == _level);
+
+    public void LearnMove(LearnableMove newMove)
+    {
+        if (Moves.Count > PokemonBase.MaxNumberOfMoves)
+            return;
+        
+        Moves.Add(new Move(newMove.Base));
     }
 }
