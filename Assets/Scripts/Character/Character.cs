@@ -50,9 +50,6 @@ public class Character : MonoBehaviour
     {
         _animator.IsMoving = IsMoving;
     }
-    
-    private Boolean IsWalkable(Vector3 targetPos) 
-        => Physics2D.OverlapCircle(targetPos, 0.2f, GameLayers.I.SolidObjectsLayer | GameLayers.I.InteractableLayer) == null;
 
     private Boolean IsPathClear(Vector3 targetPos)
     {

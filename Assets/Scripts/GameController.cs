@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public enum GameState { FreeRoam, Battle, Dialog, Cutscene }
+public enum GameState { FreeRoam, Battle, Dialog, Cutscene, Paused }
 
 public class GameController : MonoBehaviour
 {
@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private Camera _worldCamera;
     
     private GameState _state;
+    private GameState _prevState;
     private TrainerController _trainer;
     
     public static GameController I { get; private set; }
@@ -87,5 +88,18 @@ public class GameController : MonoBehaviour
     {
         _state = GameState.Cutscene;
         StartCoroutine(trainer.TriggerTrainerBattle(_playerController));
+    }
+
+    public void PauseGame(Boolean pause)
+    {
+        if (pause)
+        {
+            _prevState = _state;
+            _state = GameState.Paused;
+        }
+        else
+        {
+            _state = _prevState;
+        }
     }
 }
