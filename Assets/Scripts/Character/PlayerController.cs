@@ -60,7 +60,6 @@ public class PlayerController : MonoBehaviour
             IPlayerTriggerable triggerable = coll.GetComponent<IPlayerTriggerable>();
             if (triggerable != null)
             {
-                _character.Animator.IsMoving = false;
                 triggerable.OnPlayerTriggered(this);
                 break;
             }

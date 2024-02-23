@@ -4,9 +4,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Portal : MonoBehaviour, IPlayerTriggerable
+public class LocationPortal : MonoBehaviour, IPlayerTriggerable
 {
-    [SerializeField] private Int32 _sceneToLoad = -1;
     [SerializeField] private Transform _spawnPoint;
     [SerializeField] private DestinationID _destination;
 
@@ -25,24 +24,18 @@ public class Portal : MonoBehaviour, IPlayerTriggerable
     {
         _player = player;
         player.Character.Animator.IsMoving = false;
-        StartCoroutine(SwitchScene());
+        StartCoroutine(Teleport());
     }
 
-    private IEnumerator SwitchScene()
+    private IEnumerator Teleport()
     {
-        DontDestroyOnLoad(gameObject);
-
         GameController.I.PauseGame(true);
         yield return _fader.FadeIn(0.5f);
         
-        yield return SceneManager.LoadSceneAsync(_sceneToLoad);
-
-        Portal destPortal = FindObjectsOfType<Portal>().First(x => x != this && x.Destination == _destination);
+        LocationPortal destPortal = FindObjectsOfType<LocationPortal>().First(x => x != this && x.Destination == _destination);
         _player.Character.SetPositionAndSnapToTile(destPortal.SpawnPoint.position);
 
         yield return _fader.FadeOut(0.5f);
         GameController.I.PauseGame(false);
-
-        Destroy(gameObject);
     }
 }
