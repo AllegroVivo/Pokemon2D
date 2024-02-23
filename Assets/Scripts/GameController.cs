@@ -13,6 +13,9 @@ public class GameController : MonoBehaviour
     private GameState _prevState;
     private TrainerController _trainer;
     
+    public SceneDetails CurrentScene { get; private set; }
+    public SceneDetails PreviousScene { get; private set; }
+    
     public static GameController I { get; private set; }
 
     private void Awake()
@@ -101,5 +104,11 @@ public class GameController : MonoBehaviour
         {
             _state = _prevState;
         }
+    }
+
+    public void SetCurrentScene(SceneDetails nextScene)
+    {
+        PreviousScene = CurrentScene;
+        CurrentScene = nextScene;
     }
 }
