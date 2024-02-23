@@ -1,13 +1,14 @@
 ﻿using System;
 using UnityEngine;
 
-public enum GameState { FreeRoam, Battle, Dialog, Cutscene, Paused }
+public enum GameState { FreeRoam, Battle, Dialog, Cutscene, Paused, Menu }
 
 public class GameController : MonoBehaviour
 {
     [SerializeField] private PlayerController _playerController;
     [SerializeField] private BattleSystem _battleSystem;
     [SerializeField] private Camera _worldCamera;
+    [SerializeField] private MenuController _menuController;
     
     private GameState _state;
     private GameState _prevState;
@@ -21,6 +22,8 @@ public class GameController : MonoBehaviour
     private void Awake()
     {
         I = this;
+
+        _menuController = GetComponent<MenuController>();
         
         ConditionsDB.Init();
         PokemonDB.Init();
@@ -39,6 +42,8 @@ public class GameController : MonoBehaviour
             if (_state == GameState.Dialog)
                 _state = GameState.FreeRoam;
         };
+        _menuController.OnBack += () => _state = GameState.FreeRoam;
+        _menuController.OnMenuSelected += OnMenuSelected;
     }
 
     private void Update()
@@ -47,15 +52,18 @@ public class GameController : MonoBehaviour
         {
             _playerController.HandleUpdate();
             
-            if (Input.GetKeyDown(KeyCode.S))
-                SavingSystem.I.Save("SaveSlot1");
-            else if (Input.GetKeyDown(KeyCode.L))
-                SavingSystem.I.Load("SaveSlot1");
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                _menuController.OpenMenu();
+                _state = GameState.Menu;
+            }
         }
         else if (_state == GameState.Battle)
             _battleSystem.HandleUpdate();
         else if (_state == GameState.Dialog)
             DialogManager.I.HandleUpdate();
+        else if (_state == GameState.Menu)
+            _menuController.HandleUpdate();
     }
 
     public void StartBattle()
@@ -120,5 +128,27 @@ public class GameController : MonoBehaviour
     {
         PreviousScene = CurrentScene;
         CurrentScene = nextScene;
+    }
+
+    private void OnMenuSelected(Int32 selectedIndex)
+    {
+        if (selectedIndex == 0)
+        {
+            
+        }
+        else if (selectedIndex == 1)
+        {
+            
+        }
+        else if (selectedIndex == 2)
+        {
+            SavingSystem.I.Save("saveSlot1");
+        }
+        else if (selectedIndex == 3)
+        {
+            SavingSystem.I.Load("saveSlot1");
+        }
+
+        _state = GameState.FreeRoam;
     }
 }

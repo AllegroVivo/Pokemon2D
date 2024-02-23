@@ -23,7 +23,12 @@ public class BattleDialogBox : MonoBehaviour
     [SerializeField] private Text _yesText;
     [SerializeField] private Text _noText;
 
-    [SerializeField] private Color _highlightColor;
+    private Color _highlightColor;
+
+    private void Start()
+    {
+        _highlightColor = GlobalSettings.I.HighlightColor;
+    }
 
     public void SetDialog(String dialog)
     {
