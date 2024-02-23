@@ -9,11 +9,15 @@ public class Character : MonoBehaviour
     private CharacterAnimator _animator;
     
     public Boolean IsMoving { get; private set; }
+    
+    public Single OffsetY => 0.3f;
+
     public CharacterAnimator Animator => _animator;
 
     private void Awake()
     {
         _animator = GetComponent<CharacterAnimator>();
+        SetPositionAndSnapToTile(transform.position);
     }
 
     public IEnumerator Move(Vector2 moveVector, Action onMoveOver = null)
@@ -74,5 +78,13 @@ public class Character : MonoBehaviour
         {
             Debug.LogError("Error in LookTowards: Character may not look diagonally.");
         }
+    }
+
+    public void SetPositionAndSnapToTile(Vector2 pos)
+    {
+        pos.x = Mathf.Floor(pos.x) + 0.5f;
+        pos.y = Mathf.Floor(pos.y) + 0.5f + OffsetY;
+
+        transform.position = pos;
     }
 }

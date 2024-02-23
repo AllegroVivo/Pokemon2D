@@ -7,14 +7,13 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private String _name;
     [SerializeField] private Sprite _sprite;
-
-    private const Single offsetY = 0.3f;
     
     private Vector2 _input;
     private Character _character;
     
     public Sprite Sprite => _sprite;
     public String Name => _name;
+    public Character Character => _character;
 
     private void Awake()
     {
@@ -56,7 +55,7 @@ public class PlayerController : MonoBehaviour
     private void OnMoveOver()
     {
         Collider2D[] colliders = Physics2D.OverlapCircleAll(
-            transform.position - new Vector3(0f, offsetY), 0.2f, GameLayers.I.TriggerableLayers);
+            transform.position - new Vector3(0f, _character.OffsetY), 0.2f, GameLayers.I.TriggerableLayers);
 
         foreach (Collider2D coll in colliders)
         {
