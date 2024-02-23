@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using Object = System.Object;
 using URandom = UnityEngine.Random;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, ISavable
 {
     [SerializeField] private String _name;
     [SerializeField] private Sprite _sprite;
@@ -64,5 +65,17 @@ public class PlayerController : MonoBehaviour
                 break;
             }
         }
+    }
+
+    public Object CaptureState()
+    {
+        Vector3 pos = transform.position;
+        return new[] { pos.x, pos.y };
+    }
+
+    public void RestoreState(Object state)
+    {
+        Single[] position = (Single[])state;
+        transform.position = new Vector3(position[0], position[1]);
     }
 }

@@ -41,7 +41,14 @@ public class GameController : MonoBehaviour
     private void Update()
     {
         if (_state == GameState.FreeRoam)
+        {
             _playerController.HandleUpdate();
+            
+            if (Input.GetKeyDown(KeyCode.S))
+                SavingSystem.I.Save("SaveSlot1");
+            else if (Input.GetKeyDown(KeyCode.L))
+                SavingSystem.I.Load("SaveSlot1");
+        }
         else if (_state == GameState.Battle)
             _battleSystem.HandleUpdate();
         else if (_state == GameState.Dialog)

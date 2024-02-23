@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using Object = System.Object;
 
-public class TrainerController : MonoBehaviour, IInteractable
+public class TrainerController : MonoBehaviour, IInteractable, ISavable
 {
     [SerializeField] private String _name;
     [SerializeField] private Sprite _sprite;
@@ -78,5 +79,17 @@ public class TrainerController : MonoBehaviour, IInteractable
     {
         _battleLost = true;
         _fov.SetActive(false);
+    }
+
+    public Object CaptureState()
+    {
+        return _battleLost;
+    }
+
+    public void RestoreState(Object state)
+    {
+        _battleLost = (Boolean)state;
+        if (_battleLost)
+            _fov.gameObject.SetActive(false);
     }
 }
