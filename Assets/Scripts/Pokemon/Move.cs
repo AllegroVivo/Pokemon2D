@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Move
 {
-    public MoveBase Base { get; }
+    public MoveBase Base { get; private set; }
 
     public String Name => Base.Name;
     public String Description => Base.Description;
@@ -31,5 +31,20 @@ public class Move
     {
         Base = mBase;
         CurrentPP = mBase.PP;
+    }
+
+    public Move(MoveSaveData saveData)
+    {
+        Base = MoveDB.GetMoveByName(saveData.name);
+        CurrentPP = saveData.currentPP;
+    }
+
+    public MoveSaveData GetSaveData()
+    {
+        return new MoveSaveData
+        {
+            name = Name,
+            currentPP = CurrentPP
+        };
     }
 }

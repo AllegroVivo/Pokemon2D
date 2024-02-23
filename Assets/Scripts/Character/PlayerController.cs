@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using Object = System.Object;
 using URandom = UnityEngine.Random;
+// ReSharper disable Unity.InefficientPropertyAccess
 
 public class PlayerController : MonoBehaviour, ISavable
 {
@@ -69,13 +71,19 @@ public class PlayerController : MonoBehaviour, ISavable
 
     public Object CaptureState()
     {
-        Vector3 pos = transform.position;
-        return new[] { pos.x, pos.y };
+        PlayerSaveData saveData = new()
+        {
+            position = new[] { transform.position.x, transform.position.y },
+            party = GetComponent<PokemonParty>().PartyList.Select(p=>p.GetSaveData()).ToList()
+        };
+        return saveData;
     }
 
     public void RestoreState(Object state)
     {
-        Single[] position = (Single[])state;
-        transform.position = new Vector3(position[0], position[1]);
+        PlayerSaveData saveData = (PlayerSaveData)state;
+        
+        transform.position = new Vector3(saveData.position[0], saveData.position[1]);
+        GetComponent<PokemonParty>().PartyList = saveData.party.Select(p => new Pokemon(p)).ToList();
     }
 }

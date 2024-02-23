@@ -71,6 +71,22 @@ public class Pokemon
         Init();
     }
 
+    public Pokemon(PokemonSaveData saveData)
+    {
+        _base = PokemonDB.GetPokemonByName(saveData.name); 
+        CurrentHP = saveData.currentHP;
+        _level = saveData.level;
+        EXP = saveData.currentEXP;
+        Status = saveData.status != null ? ConditionsDB.Conditions[saveData.status.Value] : null;
+        Moves = saveData.moves.Select(s => new Move(s)).ToList();
+        
+        CalculateStats();
+        
+        StatusChanges = new Queue<String>();
+        ResetStatBoosts();
+        VolatileStatus = null;
+    }
+
     public void Init()
     {
         Moves = new List<Move>();
@@ -271,5 +287,18 @@ public class Pokemon
             return;
         
         Moves.Add(new Move(newMove.Base));
+    }
+
+    public PokemonSaveData GetSaveData()
+    {
+        return new PokemonSaveData
+        {
+            name = Name,
+            currentHP = CurrentHP,
+            level = Level,
+            currentEXP = EXP,
+            status = Status?.ID,
+            moves = Moves.Select(m => m.GetSaveData()).ToList()
+        };
     }
 }
