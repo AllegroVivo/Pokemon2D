@@ -10,6 +10,12 @@ public class PartyScreen : MonoBehaviour
     
     private PartyMemberUI[] _memberSlots;
     private List<Pokemon> _partyList;
+    
+    private Int32 _selection = 0;
+
+    public Pokemon SelectedMember => _partyList[_selection];
+    
+    public BattleState? CalledFrom { get; set; }
 
     public void Init()
     {
@@ -33,6 +39,7 @@ public class PartyScreen : MonoBehaviour
             }
         }
 
+        UpdateMemberSelection(_selection);
         _messageText.text = "Choose a Pokemon...";
     }
 
@@ -43,4 +50,28 @@ public class PartyScreen : MonoBehaviour
     }
 
     public void SetMessageText(String message) => _messageText.text = message;
+    
+    public void HandleUpdate(Action onSelected, Action onBack)
+    {
+        Int32 prevSelection = _selection;
+
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+            _selection++;
+        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            _selection--;
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
+            _selection += 2;
+        else if (Input.GetKeyDown(KeyCode.UpArrow))
+            _selection -= 2;
+
+        _selection = Mathf.Clamp(_selection, 0, _partyList.Count - 1);
+
+        if (_selection != prevSelection)
+            UpdateMemberSelection(_selection);
+
+        if (Input.GetKeyDown(KeyCode.Z))
+            onSelected?.Invoke();
+        else if (Input.GetKeyDown(KeyCode.X))
+            onBack?.Invoke();
+    }
 }

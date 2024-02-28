@@ -546,6 +546,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6104442777279994285, guid: 5cf495db878c11f439f3c53f82e47713, type: 3}
+      propertyPath: _partyScreen
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6280101443229474556, guid: 5cf495db878c11f439f3c53f82e47713, type: 3}
       propertyPath: uniqueId
       value: 3fe69088-166c-406b-8e2d-3659d2e84a7c
